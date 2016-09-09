@@ -1,3 +1,4 @@
+y = tryCatch({
 library(RCurl)
 library(XML)
 
@@ -116,4 +117,25 @@ if(Sys.Date() > time_stamp$max || is.na(time_stamp$max)) {
 # close the connection
 dbDisconnect(con)
 dbUnloadDriver(drv)
-  
+
+library(mailR)
+send.mail(from = "qnt.trading@gmail.com",
+          to = c("qnt.trading@gmail.com"),
+          subject = paste("NLU Indicators Update:",toString(Sys.Date())),
+          body = toString(x),
+          smtp = list(host.name = "smtp.gmail.com", port = 465, user.name = "qnt.trading@gmail.com", passwd = "kalinovmost19842006", ssl = TRUE),
+          authenticate = TRUE,
+          send = TRUE)
+
+
+}, error = function(err) {
+  library(mailR)
+  send.mail(from = "qnt.trading@gmail.com",
+            to = c("qnt.trading@gmail.com"),
+            subject = paste("(ERR)NLU Indicators Update:",toString(Sys.Date())),
+            body = toString(err),
+            smtp = list(host.name = "smtp.gmail.com", port = 465, user.name = "qnt.trading@gmail.com", passwd = "kalinovmost19842006", ssl = TRUE),
+            authenticate = TRUE,
+            send = TRUE)
+  return(0)
+})
