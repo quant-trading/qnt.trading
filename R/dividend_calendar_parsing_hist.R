@@ -7,7 +7,7 @@ y = tryCatch({
 
   Sys.setlocale("LC_ALL", 'russian')
   
-  for(i in 2001:2014) {
+  for(i in 2001:2015) {
     y <- htmlParse(paste("http://bcs-express.ru/kalendari-investora/dividends/",i),encoding="utf-8")
   
     recs = getNodeSet(y, "//*[@id='con_tab3']//*[@class='clearfix']")

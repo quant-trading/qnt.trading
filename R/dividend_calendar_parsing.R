@@ -41,6 +41,7 @@ y = tryCatch({
     
     # loads the PostgreSQL driver
     drv <- dbDriver("PostgreSQL")
+    ?dbConnect
     # creates a connection to the postgres database
     # note that "con" will be used later in each connection to the database
     con <- dbConnect(drv, dbname = "postgres",
@@ -49,10 +50,100 @@ y = tryCatch({
     rm(pw) # removes the password
     
     
-    dbWriteTable(con, "dividends_bks", value = data, append = TRUE, row.names = FALSE)
+    #dbWriteTable(con, "dividends_bks", value = data, append = TRUE, row.names = FALSE)
     
+    k = 0
     
+    for(i in 1:NROW(data$div_event)) {
+      
+      curr_rec= dbGetQuery(con, paste("SELECT tt.*
+FROM dividends_bks tt
+                                      INNER JOIN
+                                      (SELECT div_event, MAX(upload_dt) AS max_upload_dt
+                                      FROM dividends_bks
+                                      GROUP BY div_event) groupedtt 
+                                      ON tt.div_event = groupedtt.div_event 
+                                      AND tt.upload_dt = groupedtt.max_upload_dt
+                                      and tt.div_event = '",data$div_event[i],"'",sep=""))
+      class(curr_rec)
+      if(NROW(curr_rec)==0)
+      {
+        # write new  
+        dbWriteTable(con, "dividends_bks", value = data[i,], append = TRUE, row.names = FALSE)
+        k = k + 1
+      } else {
+        #update existing
+        #print("Update")
+        
+        if(curr_rec$upload_dt < Sys.Date() &&
+           (curr_rec$last_trading_date != data[i,]$last_trading_date || 
+            curr_rec$close_registry_date != data[i,]$close_registry_date ||
+            curr_rec$div_size != data[i,]$div_size ||
+            curr_rec$stock_price != data[i,]$stock_price
+            )
+           )
+          {
+            dbWriteTable(con, "dividends_bks", value = data[i,], append = TRUE, row.names = FALSE)
+            k = k + 1
+          }
+      }
+    }
+    
+    # get upcoming events
+    upcoming = dbGetQuery(con, "SELECT tt.div_event, tt.return_rate, tt.last_trading_date
+                FROM dividends_bks tt
+               INNER JOIN
+               (SELECT div_event, MAX(upload_dt) AS max_upload_dt
+               FROM dividends_bks
+               GROUP BY div_event) groupedtt 
+               ON tt.div_event = groupedtt.div_event 
+               AND tt.upload_dt = groupedtt.max_upload_dt
+               and (tt.last_trading_date > CURRENT_DATE) and (tt.last_trading_date < (CURRENT_DATE + 10 *INTERVAL '1 day'))")
+ 
     # close the connection
     dbDisconnect(con)
     dbUnloadDriver(drv)
+    
+    upcoming$div_event = sapply(upcoming$div_event, function(d){return(iconv(d, from = "UTF-8", to = "CP1251"))})  
+    iconv(upcoming$div_event, from = "UTF-8", to = "CP1251")
+    text = ""
+    for(i in 1:NROW(upcoming)){
+      text = paste(text,"<br>", upcoming$div_event[i],": ",upcoming$return_rate[i],"% ",upcoming$last_trading_date[i], sep="")
+    }
+    
+    require(mailR)
+    send.mail(from = "qnt.trading@gmail.com",
+              to = c("qnt.trading@gmail.com"),
+              subject = paste("[",k,"] Divident Calendar Update:",toString(Sys.Date())),
+              body = toString(data$div_event),
+              encoding = "koi8-r",
+              smtp = list(host.name = "smtp.gmail.com", port = 465, user.name = "qnt.trading@gmail.com", passwd = "kalinovmost19842006", ssl = TRUE),
+              authenticate = TRUE,
+              send = TRUE)
+    
+    send.mail(from = "qnt.trading@gmail.com",
+               to = c("andreevm@bk.ru"),
+               subject = paste("Upcoming RUS Dividends:",toString(Sys.Date())),
+               body = toString(text),
+               html = TRUE,
+               encoding = "utf-8",
+               smtp = list(host.name = "smtp.gmail.com", port = 465, user.name = "qnt.trading@gmail.com", passwd = "kalinovmost19842006", ssl = TRUE),
+               authenticate = TRUE,
+               send = TRUE)
+
+}, error = function(err) {
+  library(mailR)
+  send.mail(from = "qnt.trading@gmail.com",
+            to = c("qnt.trading@gmail.com"),
+            subject = paste("(ERR)Divident Calendar Update:",toString(Sys.Date())),
+            body = toString(err),
+            smtp = list(host.name = "smtp.gmail.com", port = 465, user.name = "qnt.trading@gmail.com", passwd = "kalinovmost19842006", ssl = TRUE),
+            authenticate = TRUE,
+            send = TRUE)
+  return(0)
 })
+
+
+
+
+
