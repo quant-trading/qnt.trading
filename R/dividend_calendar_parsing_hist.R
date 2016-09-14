@@ -1,9 +1,14 @@
-y = tryCatch({
-  
-  library(XML)
+#install.packages('XML')
+#install.packages('RPostgreSQL')
 
-  for(i in 2001:2015) {
-    y <- htmlParse(paste("http://bcs-express.ru/kalendari-investora/dividends/",i))
+y = tryCatch({
+
+  require(XML)
+
+  Sys.setlocale("LC_ALL", 'russian')
+  
+  for(i in 2001:2014) {
+    y <- htmlParse(paste("http://bcs-express.ru/kalendari-investora/dividends/",i),encoding="utf-8")
   
     recs = getNodeSet(y, "//*[@id='con_tab3']//*[@class='clearfix']")
   
@@ -13,12 +18,17 @@ y = tryCatch({
   
     stock_price <- sapply(recs, xpathSApply, ".//*[@class='divids_item_price']", xmlValue)
     return_rate <- sapply(sapply(recs, xpathSApply, ".//*[@class='divids_item_dohod item_content']", xmlValue), function(k) { as.numeric(gsub(" ","",gsub(",",".",k)))})
-    last_trading_date <- as.Date(sapply(recs, xpathSApply, ".//*[@class='divids_item_sobran item_content']", xmlValue), "%d.%m.%Y")
-    close_registry_date <- as.Date(sapply(recs, xpathSApply, ".//*[@class='divids_item_zakritie item_content']", xmlValue), "%d.%m.%Y")
+    last_trading_date <- sapply(recs, xpathSApply, ".//*[@class='divids_item_sobran item_content']", xmlValue)
+    close_registry_date <- sapply(recs, xpathSApply, ".//*[@class='divids_item_zakritie item_content']", xmlValue)
     upload_dt = rep(Sys.Date(),length(company))
-    data = cbind(upload_dt, company, div_size, stock_price, return_rate, last_trading_date, close_registry_date)
+    data = data.frame(cbind(upload_dt, company, div_size, stock_price, return_rate, last_trading_date, close_registry_date))
     
-    names(x) = c("upd_dt","div_event","div_size","stock_price","return_rate","last_trading_date","close_registry_date")
+    data$upload_dt = rep(Sys.Date(),length(company))
+    data$last_trading_date = as.Date(data$last_trading_date, "%d.%m.%Y")
+    data$close_registry_date = as.Date(data$close_registry_date, "%d.%m.%Y")
+    
+    
+    names(data) = c("upload_dt","div_event","div_size","stock_price","return_rate","last_trading_date","close_registry_date")
     
     # DB routine
     require("RPostgreSQL")
@@ -38,7 +48,7 @@ y = tryCatch({
                      user = "postgres", password = pw)
     rm(pw) # removes the password
     
-    dbWriteTable(con, "indicators_nlu_basic", value = x, append = TRUE, row.names = FALSE)
+    dbWriteTable(con, "dividends_bks", value = data, append = TRUE, row.names = FALSE)
   
   
     # close the connection

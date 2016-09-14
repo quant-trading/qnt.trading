@@ -1,6 +1,9 @@
+#install.packages("RCurl")
+#install.packages("mailR")
+
 y = tryCatch({
-library(RCurl)
-library(XML)
+require(RCurl)
+require(XML)
 
 # Download page using RCurl
 # You may need to set proxy details, etc.,  in the call to getURL
@@ -118,7 +121,7 @@ if(Sys.Date() > time_stamp$max || is.na(time_stamp$max)) {
 dbDisconnect(con)
 dbUnloadDriver(drv)
 
-library(mailR)
+require(mailR)
 send.mail(from = "qnt.trading@gmail.com",
           to = c("qnt.trading@gmail.com"),
           subject = paste("NLU Indicators Update:",toString(Sys.Date())),
