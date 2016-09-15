@@ -56,18 +56,21 @@ y = tryCatch({
     
     for(i in 1:NROW(data$div_event)) {
       
+      if(!is.na(data$last_trading_date[i])) {
       curr_rec= dbGetQuery(con, paste("SELECT tt.*
 FROM dividends_bks tt
                                       INNER JOIN
                                       (SELECT div_event, MAX(upload_dt) AS max_upload_dt
-                                      FROM dividends_bks
+                                      FROM dividends_bks where last_trading_date = '",data$last_trading_date[i],"'
                                       GROUP BY div_event) groupedtt 
                                       ON tt.div_event = groupedtt.div_event 
                                       AND tt.upload_dt = groupedtt.max_upload_dt
-                                      and tt.div_event = '",data$div_event[i],"'",sep=""))
+                                      and tt.div_event = '",data$div_event[i],"' and tt.last_trading_date = '",data$last_trading_date[i],"'",sep=""))
+      }
       class(curr_rec)
-      if(NROW(curr_rec)==0)
+      if(NROW(curr_rec)==0 && !is.na(data$last_trading_date[i]))
       {
+        #print("NROW")
         # write new  
         dbWriteTable(con, "dividends_bks", value = data[i,], append = TRUE, row.names = FALSE)
         k = k + 1
@@ -75,7 +78,8 @@ FROM dividends_bks tt
         #update existing
         #print("Update")
         
-        if(curr_rec$upload_dt < Sys.Date() &&
+        if(curr_rec$upload_dt < Sys.Date() && !is.null(curr_rec$last_trading_date)
+           && !is.na(curr_rec$last_trading_date) && curr_rec$last_trading_date >= Sys.Date() &&
            (curr_rec$last_trading_date != data[i,]$last_trading_date || 
             curr_rec$close_registry_date != data[i,]$close_registry_date ||
             curr_rec$div_size != data[i,]$div_size ||
@@ -83,6 +87,7 @@ FROM dividends_bks tt
             )
            )
           {
+          print("COND")
             dbWriteTable(con, "dividends_bks", value = data[i,], append = TRUE, row.names = FALSE)
             k = k + 1
           }
@@ -94,7 +99,7 @@ FROM dividends_bks tt
                 FROM dividends_bks tt
                INNER JOIN
                (SELECT div_event, MAX(upload_dt) AS max_upload_dt
-               FROM dividends_bks
+               FROM dividends_bks where last_trading_date >= CURRENT_DATE
                GROUP BY div_event) groupedtt 
                ON tt.div_event = groupedtt.div_event 
                AND tt.upload_dt = groupedtt.max_upload_dt
