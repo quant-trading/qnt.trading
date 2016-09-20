@@ -24,7 +24,6 @@ getSymbols("XPT/USD",src="oanda")
 chartSeries(XPTUSD,name="Platinum (.oz) in $USD") 
 chartSeries(to.weekly(XPTUSD),up.col='white',dn.col='blue') 
 
-
 require(TTR) 
 getSymbols("GOOG") 
 chartSeries(GOOG) 
