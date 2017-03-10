@@ -1,39 +1,38 @@
-Investment Name;Asset Class;Ticker Symbol
-Vanguard Target Retirement Income Inv;Asset Allocation;VTINX
-Vanguard Target Retirement 2015 Inv;Asset Allocation;VTXVX
-Vanguard Target Retirement 2020 Inv;Asset Allocation;VTWNX
-Vanguard Target Retirement 2025 Inv;Asset Allocation;VTTVX
-Vanguard Target Retirement 2030 Inv;Asset Allocation;VTHRX
-Vanguard Target Retirement 2035 Inv;Asset Allocation;VTTHX
-Vanguard Target Retirement 2040 Inv;Asset Allocation;VFORX
-Vanguard Target Retirement 2045 Inv;Asset Allocation;VTIVX
-Vanguard Target Retirement 2050 Inv;Asset Allocation;VFIFX
-Vanguard Target Retirement 2055 Inv;Asset Allocation;VFFVX
-Vanguard Target Retirement 2060 Inv;Asset Allocation;VTTSX
-American Funds EuroPacific Gr R6;International Funds;RERGX
-American Funds New Perspective R6;International Funds;RNPGX
-Oppenheimer International Small-Mid Co Y;International Funds;OSMYX
-Vanguard Emerging Mkts Stock Idx Adm;International Funds;VEMAX
-Vanguard Total Intl Stock Index Admiral;International Funds;VTIAX
-T. Rowe Price New Era I;Specialty;TRNEX
-Vanguard REIT Index Adm;Specialty;VGSLX
-ClearBridge Small Cap Growth IS;Small Cap Funds;LMOIX
-DFA US Targeted Value I;Small Cap Funds;DFFVX
-Vanguard Small Cap Index Adm;Small Cap Funds;VSMAX
-American Century Mid Cap Value R6;Mid Cap Funds;AMDVX
-Janus Enterprise N;Mid Cap Funds;JDMNX
-Vanguard Extended Market Idx Adm;Mid Cap Funds;VEXAX
-Vanguard Mid Cap Index Fund - Admiral;Mid Cap Funds;VIMAX
-T. Rowe Price Growth Stock I;Large Cap Funds;PRUFX
-T. Rowe Price Value I;Large Cap Funds;TRPIX
-Vanguard 500 Index Admiral;Large Cap Funds;VFIAX
-American Funds Balanced Port R-6;Balanced Funds;RBAGX
-American Funds American Balanced R6;Balanced Funds;RLBGX
-AB Global Bond Z;Bond Funds;ANAZX
-DFA Inflation-Protected Securities I;Bond Funds;DIPSX
-Ivy High Income I;Bond Funds;IVHIX
-PIMCO Real Return Admin;Bond Funds;PARRX
-Prudential Total Return Bond Q;Bond Funds;PTRQX
-Vanguard Total Bond Market Index Admiral;Bond Funds;VBTLX
-Key Guaranteed Portfolio Fund;Fixed;
-;;
+Investment Name;Asset Class;Ticker Symbol;ExpenseRatio
+Vanguard Target Retirement Income Inv;Asset Allocation;VTINX;0.13
+Vanguard Target Retirement 2015 Inv;Asset Allocation;VTXVX;0.14
+Vanguard Target Retirement 2020 Inv;Asset Allocation;VTWNX;0.14
+Vanguard Target Retirement 2025 Inv;Asset Allocation;VTTVX;0.14
+Vanguard Target Retirement 2030 Inv;Asset Allocation;VTHRX;0.15
+Vanguard Target Retirement 2035 Inv;Asset Allocation;VTTHX;0.15
+Vanguard Target Retirement 2040 Inv;Asset Allocation;VFORX;0.16
+Vanguard Target Retirement 2045 Inv;Asset Allocation;VTIVX;0.16
+Vanguard Target Retirement 2050 Inv;Asset Allocation;VFIFX;0.16
+Vanguard Target Retirement 2055 Inv;Asset Allocation;VFFVX;0.16
+Vanguard Target Retirement 2060 Inv;Asset Allocation;VTTSX;0.16
+American Funds EuroPacific Gr R6;International Funds;RERGX;0.5
+American Funds New Perspective R6;International Funds;RNPGX;0.45
+Oppenheimer International Small-Mid Co Y;International Funds;OSMYX;1.17
+Vanguard Emerging Mkts Stock Idx Adm;International Funds;VEMAX;0.14
+Vanguard Total Intl Stock Index Admiral;International Funds;VTIAX;0.11
+T. Rowe Price New Era I;Specialty;TRNEX;0.58
+Vanguard REIT Index Adm;Specialty;VGSLX;0.12
+ClearBridge Small Cap Growth IS;Small Cap Funds;LMOIX;0.78
+DFA US Targeted Value I;Small Cap Funds;DFFVX;0.37
+Vanguard Small Cap Index Adm;Small Cap Funds;VSMAX;0.08
+American Century Mid Cap Value R6;Mid Cap Funds;AMDVX;0.63
+Janus Enterprise N;Mid Cap Funds;JDMNX;0.68
+Vanguard Extended Market Idx Adm;Mid Cap Funds;VEXAX;0.09
+Vanguard Mid Cap Index Fund - Admiral;Mid Cap Funds;VIMAX;0.08
+T. Rowe Price Growth Stock I;Large Cap Funds;PRUFX;0.52
+T. Rowe Price Value I;Large Cap Funds;TRPIX;0.66
+Vanguard 500 Index Admiral;Large Cap Funds;VFIAX;0.05
+American Funds Balanced Port R-6;Balanced Funds;RBAGX;0.4
+American Funds American Balanced R6;Balanced Funds;RLBGX;0.29
+AB Global Bond Z;Bond Funds;ANAZX;0.52
+DFA Inflation-Protected Securities I;Bond Funds;DIPSX;0.12
+Ivy High Income I;Bond Funds;IVHIX;0.7
+PIMCO Real Return Admin;Bond Funds;PARRX;0.7
+Prudential Total Return Bond Q;Bond Funds;PTRQX;0.43
+Vanguard Total Bond Market Index Admiral;Bond Funds;VBTLX;0.06
+Key Guaranteed Portfolio Fund;Fixed;;

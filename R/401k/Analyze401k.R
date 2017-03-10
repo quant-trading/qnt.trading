@@ -2,8 +2,12 @@
 source("QuotesLoader.R")
 
 DAYS_COUNT = 252
+MAX_EXPENSE_RATIO_THRESHOLD = 0.2
+CHEAP_ONLY = T
+RELOAD_DATA = F
+RISK_TOLERANCE = 8.5
 
-
+if(RELOAD_DATA) {
 universe <- read.csv("etf_list.csv", sep = ";",  stringsAsFactors = F)
 
 universe <- universe %>% as_tibble()
@@ -24,11 +28,13 @@ universe <- universe %>%
     sd.log.returns   = map_dbl(log.returns, ~ sd(.$Log.Returns)),
     n.trade.days = map_dbl(stock.prices, nrow)
   )  
-
+}
 
 
 
 # Correlation
+
+etfs_cheap <- as.vector(t(universe %>% filter(ExpenseRatio < MAX_EXPENSE_RATIO_THRESHOLD) %>% select(Ticker.Symbol)))
 
 universe_unnest <- universe %>%
   select(Ticker.Symbol, log.returns) %>%
@@ -59,7 +65,8 @@ act_p <- data.frame(t(w))
 colnames(act_p) <- etfs
 
 R <- universe_unnest %>%
-  spread(key = Ticker.Symbol, value = Log.Returns) 
+  spread(key = Ticker.Symbol, value = Log.Returns)  %>%
+  na.omit()
 
 rownames(R) <- as.factor(universe_spread$Date)
 R <- R %>%select(-Date) %>% as.xts()
@@ -75,8 +82,22 @@ library(ROI)
 require(ROI.plugin.glpk)
 require(ROI.plugin.quadprog)
 
-R <- universe_spread[-1]
+#----- cheap etf only------------
+if(CHEAP_ONLY = T) {
+universe_unnest <- universe %>% 
+  select(Ticker.Symbol, log.returns) %>% filter(Ticker.Symbol %in% etfs_cheap) %>%
+  unnest()
+
+universe_spread <- universe_unnest %>%
+  spread(key = Ticker.Symbol, value = Log.Returns) %>%
+  na.omit()
+}
+#-----------------------------------------
+
+R <- universe_spread[-1] 
 rownames(R) <- as.factor(universe_spread$Date)
+
+
 R <- as.xts(R)
 
 
@@ -89,16 +110,12 @@ init <- add.constraint(portfolio=init, type="box", min=0.00, max=0.35)
 
 
 meanETL <- add.objective(portfolio=init, type="return", name="mean")
-meanETL <- add.objective(portfolio=meanETL, type="risk", name="var", risk_aversion=16.25)
-
-
+meanETL <- add.objective(portfolio=meanETL, type="risk", name="var", risk_aversion=RISK_TOLERANCE)
 
 
 opt_maxret <- optimize.portfolio(R=R, portfolio=meanETL,
                                  optimize_method="ROI",
                                  trace=TRUE)
-
-
 
 # opt_maxret <- optimize.portfolio(R=as.xts(R), portfolio=meanETL,
 #                                        optimize_method="DEoptim",
@@ -112,10 +129,22 @@ opt_maxret$objective_measures$mean * DAYS_COUNT
 opt_maxret$objective_measures$StdDev * sqrt(DAYS_COUNT)
 
 #universe$Investment.Name[which(universe$Ticker.Symbol  %in% names(opt_maxret$weights[opt_maxret$weights > 0.001]))]
+etfs_o <- universe$Ticker.Symbol[which(universe$Ticker.Symbol  %in% names(opt_maxret$weights[opt_maxret$weights > 0.001]))]
+w_o <- opt_maxret$weights[opt_maxret$weights > 0.001]
 
 res = rbind(opt_maxret$weights[opt_maxret$weights > 0.001],
       universe$Investment.Name[which(universe$Ticker.Symbol  %in% names(opt_maxret$weights[opt_maxret$weights > 0.001]))]
 )
+
+
+
+
+opt_p <- as.xts(apply(R[,etfs_o], 1, function(x) crossprod(x , w_o)))
+#opt_p   %>% cumsum() %>% chartSeries()
+#actual_p   %>% cumsum() %>% addTA(on=1)
+
+as.xts(merge(opt_p, actual_p)) %>% na.omit() %>% cumsum() %>% chartSeries()
+actual_p   %>% cumsum() %>% addTA(on=1)
 
 #-------------------------------------------------------------------------------------------------
 # Scatter Plot
@@ -130,3 +159,8 @@ points(x = sd(actual_p) * sqrt(DAYS_COUNT), y = mean(actual_p) * DAYS_COUNT, pch
 points(x = opt_maxret$objective_measures$StdDev * sqrt(DAYS_COUNT) , y = opt_maxret$objective_measures$mean * DAYS_COUNT , pch = 19, col = "green", lty = "solid")
 
 
+print("Expense Ratio for Optimal Portfolio:")
+crossprod(opt_maxret$weights[opt_maxret$weights > 0.001], universe$ExpenseRatio[which(universe$Ticker.Symbol  %in% etfs_o)])
+
+print("Expense Ratio for Actual Portfolio:")
+crossprod(w, universe$ExpenseRatio[which(universe$Ticker.Symbol  %in% etfs)])
