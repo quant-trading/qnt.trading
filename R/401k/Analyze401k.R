@@ -2,10 +2,10 @@
 source("QuotesLoader.R")
 
 DAYS_COUNT = 252
-MAX_EXPENSE_RATIO_THRESHOLD = 0.2
-CHEAP_ONLY = T
+MAX_EXPENSE_RATIO_THRESHOLD = 1.2
+CHEAP_ONLY = F
 RELOAD_DATA = F
-RISK_TOLERANCE = 8.5
+RISK_TOLERANCE = 6.5
 
 if(RELOAD_DATA) {
 universe <- read.csv("etf_list.csv", sep = ";",  stringsAsFactors = F)
@@ -19,8 +19,8 @@ universe <- universe %>%
     stock.prices = map(Ticker.Symbol, 
                        function(.x) get_stock_prices(.x, 
                                                      return_format = "tibble",
-                                                     from = "2013-01-01",
-                                                     to = "2017-03-06")
+                                                     from = "2016-01-01",
+                                                     to = "2017-03-12")
     ),
     log.returns  = map(stock.prices, 
                        function(.x) get_log_returns(.x, return_format = "tibble")),
