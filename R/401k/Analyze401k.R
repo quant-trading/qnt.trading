@@ -4,10 +4,16 @@ source("QuotesLoader.R")
 DAYS_COUNT = 252
 MAX_EXPENSE_RATIO_THRESHOLD = 1.2
 CHEAP_ONLY = F
-RELOAD_DATA = F
+RELOAD_DATA = T
 RISK_TOLERANCE = 6.5
+TODAY = Sys.Date()
+
+pdf(file = "report.pdf")
 
 if(RELOAD_DATA) {
+  
+
+  
 universe <- read.csv("etf_list.csv", sep = ";",  stringsAsFactors = F)
 
 universe <- universe %>% as_tibble()
@@ -19,8 +25,8 @@ universe <- universe %>%
     stock.prices = map(Ticker.Symbol, 
                        function(.x) get_stock_prices(.x, 
                                                      return_format = "tibble",
-                                                     from = "2016-01-01",
-                                                     to = "2017-03-12")
+                                                     from = "2016-05-30",
+                                                     to = TODAY)
     ),
     log.returns  = map(stock.prices, 
                        function(.x) get_log_returns(.x, return_format = "tibble")),
@@ -49,30 +55,70 @@ universe_cor <- universe_spread %>%
   cor() 
 
 library(corrplot)
-universe_cor %>%
+p <- universe_cor %>%
   corrplot(order   = "hclust", 
            addrect = 11)
 
-
+print(p)
 
 #------------------------------------------------------------------
 # Analyze actual Portfolio
 
-etfs <- c("VBTLX", "VTIAX", "VEMAX", "VFIAX", "VGSLX")
-w <- c(0.1, 0.1, 0.05, 0.6, 0.15)
+library(PerformanceAnalytics)
 
-act_p <- data.frame(t(w))
-colnames(act_p) <- etfs
+date <- list()
+etfs <- list()
+w <- list()
 
+date[[1]] <- "2017-03-12"
+etfs[[1]] <- c("VBTLX", "VTIAX", "VEMAX", "VFIAX", "VGSLX")
+w[[1]] <- c(0.1, 0.1, 0.05, 0.6, 0.15)
+
+date[[2]] <- toString(TODAY)
+etfs[[2]] <- c("VEMAX", "DFFVX", "AMDVX", "VFIAX", "ANAZX", "IVHIX", "PTRQX")
+w[[2]] <- c(0.35, 0.10, 0.06, 0.35, 0.02, 0.10, 0.02)
+
+# prepare data for calculation
 R <- universe_unnest %>%
-  spread(key = Ticker.Symbol, value = Log.Returns)  %>%
-  na.omit()
+  spread(key = Ticker.Symbol, value = Log.Returns)
 
-rownames(R) <- as.factor(universe_spread$Date)
+rownames(R) <- as.factor(R$Date)
 R <- R %>%select(-Date) %>% as.xts()
 
-actual_p <- as.xts(apply(R[,etfs], 1, function(x) crossprod(x , w)))
-actual_p  %>% cumsum() %>% chartSeries()
+# calculate each portfolio
+
+portfolio <- list()
+
+  
+for(i in seq(1, length(w))) {
+    act_p <- data.frame(t(w[[i]]))
+    colnames(act_p) <- etfs[[i]]
+    
+    actual_p <- as.xts(apply(R[,etfs[[i]]], 1, function(x) crossprod(x , w[[i]])))
+    
+    # if(i > 1)
+    # { portfolio[[i]] <- actual_p[paste0("::", date[[i]])]} 
+    # else 
+    # { 
+    portfolio[[i]] <- actual_p[paste0(date[[1]],"::")]
+    index(portfolio[[i]]) <- as.Date(index(portfolio[[i]]))
+}
+
+
+
+getSymbols("SPY")
+b <- dailyReturn(SPY[paste0(date[[1]],"::")]) 
+index(b) <- as.Date(index(b))
+
+results <- merge(portfolio[[1]], portfolio[[2]], b)
+names(results) <- c("Before", "After", "SPY")
+
+charts.PerformanceSummary(results, colorset=rich6equal, legend.loc="topleft")
+
+
+chart.RelativePerformance(results, b, colorset=rich6equal, legend.loc="topleft")
+
+charts.RollingPerformance(results, colorset=rich6equal,  legend.loc="topleft")
 
 #------------------------------------------------------------------
 # Analyze optimal Portfolio
@@ -83,7 +129,7 @@ require(ROI.plugin.glpk)
 require(ROI.plugin.quadprog)
 
 #----- cheap etf only------------
-if(CHEAP_ONLY = T) {
+if(CHEAP_ONLY == T) {
 universe_unnest <- universe %>% 
   select(Ticker.Symbol, log.returns) %>% filter(Ticker.Symbol %in% etfs_cheap) %>%
   unnest()
@@ -164,3 +210,7 @@ crossprod(opt_maxret$weights[opt_maxret$weights > 0.001], universe$ExpenseRatio[
 
 print("Expense Ratio for Actual Portfolio:")
 crossprod(w, universe$ExpenseRatio[which(universe$Ticker.Symbol  %in% etfs)])
+
+write(res, file = "result.txt")
+
+dev.off()
