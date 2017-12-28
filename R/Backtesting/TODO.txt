@@ -1,0 +1,10 @@
+12/27/2017
+
+Next steps:
+1. Load simple trading calendar
+2. Iteration over start -> end dates
+3. create quantcore class
+4. create dataSource class and load GAZP.ME quotes
+5. generate simple trading signals for each day -> class TradingSignal
+6. create tradingOrder and execute them 
+7. update account holdings
