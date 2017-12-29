@@ -41,7 +41,7 @@ BackTest <- R6Class("BackTest",
                         private$broker = Broker$new()
                         private$exchange = Exchange$new()
                         private$quantCore = QuantCore$new(STRATEGY.ID)
-                        private$dataAdapter = Global.Adapter
+                        private$dataAdapter = Global.Quote.Adapter
                       },
                       
                       run = function() {

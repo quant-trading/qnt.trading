@@ -29,7 +29,7 @@ Exchange <- R6Class("Exchange",
                         if(order$status == ORDER.STATUS.PENDING) {
                           
                           # execute orders
-                          quote <- Global.Adapter$getQuote(asset.id = order$assetID, date = Current.Date)
+                          quote <- Global.Quote.Adapter$getQuote(asset.id = order$assetID, date = Current.Date)
                           spread <- private$transactionCostModel$getMarketSpread(assetID = order$assetID, date = Current.Date)
                           mkt.impact <- private$transactionCostModel$getMarketImpact(order)
                           

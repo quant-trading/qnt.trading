@@ -1,7 +1,6 @@
 12/27/2017
 
 Next steps:
-7. Create dictionary with Lots
 8. update account holdings with taxLots (using stack)
 9. implement T0,T1,T2 modes for accounts including account rollover
 10.calculate PnL of the strategy

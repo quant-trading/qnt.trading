@@ -1,5 +1,7 @@
-# Initialize Adapter
+# Initialize Adapters
 
 source("adapters/QuoteAdapterBase.R")
+source("adapters/DictionaryAdapterBase.R")
 
-Global.Adapter = QuoteAdapterBase$new()
+Global.Quote.Adapter = QuoteAdapterBase$new()
+Global.Dictionary.Adapter = DictionaryAdapterBase$new()
