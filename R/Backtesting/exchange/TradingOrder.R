@@ -5,8 +5,6 @@ ORDER.STATUS.PENDING  = 1
 ORDER.STATUS.EXECUTED = 2
 ORDER.STATUS.REJECTED = 3
 
-DIRECTION.BUY = 1
-DIRECTION.SELL = -1
 
 TradingOrder <- R6Class("TradingOrder",
                         
@@ -15,6 +13,7 @@ TradingOrder <- R6Class("TradingOrder",
                           assetID = NULL,
                           qty = NULL,
                           direction = NULL,
+                          
                           status = NULL,
                           executedLots = list(),
                           commission = 0,
@@ -25,6 +24,11 @@ TradingOrder <- R6Class("TradingOrder",
                            self$qty = qty
                            self$direction = direction
                            self$status = ORDER.STATUS.PENDING
+                          },
+                          
+                          
+                          getAverageExecutionPrice = function() {
+                            return(0)
                           }
                         )
 )

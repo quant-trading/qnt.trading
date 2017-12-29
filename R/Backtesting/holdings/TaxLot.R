@@ -8,12 +8,10 @@ TaxLot <- R6Class("TaxLot",
                      qty = NULL,
                      price = NULL,
                      openDate = NULL,
-                     accountId = NULL
-                   ),
-                   
-                   public = list (
+                     accountId = NULL,
+
                      initialize = function(ID) {
-                       public$ID = ID
+                       self$ID = ID
                      }
                    )
 )

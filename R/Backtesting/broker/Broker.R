@@ -14,7 +14,7 @@ Broker <- R6Class("Broker",
                      
                      
                      calculateBrokerCommission = function(order) {
-                       return(0)
+                       return(2)
                      }
                    ),
                    public = list(
@@ -27,16 +27,39 @@ Broker <- R6Class("Broker",
                        private$accounts[[account_id]] <- Account$new(account_id, account_type, initial_cash)
                      },
                      
+                     
+                     getAccountValue = function(account_id, mode) {
+                       return(private$accounts[[account_id]]$getCashAmount(mode))
+                     },
+                     
 
                      
                      
-                     processTradingOrders = function(exchange, orders) {
+                     processTradingOrders = function(exchange, orders, account_id) {
                        
                        # TODO: check if we have enough money to process trading order 
                        
                        executedOrders <- exchange$executeTradingOrders(orders)
                        
                        # TODO: split execution results
+                       for(order in executedOrders) {
+                         if(order$status == ORDER.STATUS.EXECUTED) {
+                           
+                           # process order
+                           
+                           # exchange commission
+                           private$accounts[[account_id]]$expenseCosts(order$commission)
+                           
+                           # broker commission
+                           private$accounts[[account_id]]$expenseCosts( private$calculateBrokerCommission( order ) )
+                         }
+                         
+                       }
+                       
+                     },
+                     
+                     
+                     rolloverAccounts = function() {
                        
                      }
                      

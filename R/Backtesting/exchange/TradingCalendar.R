@@ -1,6 +1,9 @@
 # Mikhail Andreev (c) 2017
 # Trading Calendar
 
+TRADING.CALENDAR.FILE = "data/calendar/MICEXINDEXCF.ME.csv"
+
+
 TradingCalendar <- R6Class("TradingCalendar",
                            
                            private = list(
@@ -9,11 +12,12 @@ TradingCalendar <- R6Class("TradingCalendar",
                            
                            public = list(
                              initialize = function() {
-                               
+                               calendar <- read.csv(file = TRADING.CALENDAR.FILE, header = T, stringsAsFactors = F, sep = ',')
+                               private$tradingDates <- as.Date(calendar$Date, format = DATE.PATTERN)
                              },
                              
                              getNextTradingDate = function(dt) {
-                               return(0)
+                               private$tradingDates[min(which(private$tradingDates > dt))]
                              }
                            )
 )

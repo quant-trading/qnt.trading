@@ -23,16 +23,34 @@ Account <- R6Class("Account",
                                    private$cash = initial_cash
                                  },
                                  
+                                 
                                  getMarketValue = function() {
                                    return(0)
                                  },
                                  
+                                 
                                  getCashAmount = function(mode) {
-                                   return(0)
+                                   return(private$cash)
                                  },
+                                 
                                  
                                  getHoldings = function(mode) {
                                    private$holdings
+                                 },
+                                 
+                                 
+                                 expenseCosts = function(cost) {
+                                   private$cash = private$cash - cost
+                                 },
+                                 
+                                 
+                                 updateHoldings = function(taxLots) {
+                                   
+                                 },
+                                 
+                                 
+                                 getUnrealizedPnL = function() {
+                                   
                                  }
                                )
 )
