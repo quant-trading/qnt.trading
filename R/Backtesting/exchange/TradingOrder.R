@@ -13,22 +13,13 @@ TradingOrder <- R6Class("TradingOrder",
                           assetID = NULL,
                           qty = NULL,
                           direction = NULL,
-                          
                           status = NULL,
-                          executedLots = list(),
-                          commission = 0,
-                          
                           
                           initialize = function(asset_id, qty, direction) {
                            self$assetID = asset_id
                            self$qty = qty
                            self$direction = direction
                            self$status = ORDER.STATUS.PENDING
-                          },
-                          
-                          
-                          getAverageExecutionPrice = function() {
-                            return(0)
                           }
                         )
 )

@@ -5,6 +5,11 @@ source("adapters/FinancialInstrument.R")
 
 DICTIONARY.FILE = 'data/instruments/instruments.csv'
 
+SETTLEMENT.T0 = 0
+SETTLEMENT.T1 = 1
+SETTLEMENT.T2 = 2
+SETTLEMENT.T3 = 3
+
 DictionaryAdapterBase <- R6Class("DictionaryAdapterBase",
                              
                              private = list(
@@ -29,6 +34,15 @@ DictionaryAdapterBase <- R6Class("DictionaryAdapterBase",
                                
                                getLotSize = function(assetID) {
                                  return(private$instruments[[assetID]]$lotSize)
+                               },
+                               
+                               
+                               getSettlementMode = function(assetID) {
+                                return(SETTLEMENT.T0)  
+                               },
+                               
+                               getAssetType = function(assetID) {
+                                 return(private$instruments[[assetID]]$type)
                                }
                              )
 )

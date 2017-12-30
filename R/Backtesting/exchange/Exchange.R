@@ -4,7 +4,7 @@
 
 source("exchange/TradingCalendar.R")
 source("exchange/TransactionCostModel.R")
-source("holdings/TaxLot.R")
+source("exchange/Trade.R")
 
 Exchange <- R6Class("Exchange",
                   
@@ -19,33 +19,54 @@ Exchange <- R6Class("Exchange",
                       private$transactionCostModel = TransactionCostModel$new()
                     },
                     
+                    
                     getNextTradingDate = function(dt) {
                       private$tradingCalendar$getNextTradingDate(dt)
                     },
                     
+                    
                     executeTradingOrders = function(orders) {
 
+                      trades <- list()
+                      k = 1
+                      
                       for(order in orders) {
                         if(order$status == ORDER.STATUS.PENDING) {
-                          
+                        
                           # execute orders
+                          order$status <- ORDER.STATUS.EXECUTED
+                          
+                          # create new trade
+                          trade = Trade$new(order$assetID, order$qty, order$direction)
+                          
+                          # calculate execution price
                           quote <- Global.Quote.Adapter$getQuote(asset.id = order$assetID, date = Current.Date)
                           spread <- private$transactionCostModel$getMarketSpread(assetID = order$assetID, date = Current.Date)
                           mkt.impact <- private$transactionCostModel$getMarketImpact(order)
                           
-                          taxLot <- TaxLot$new(order$assetID)
-                          taxLot$qty <- order$qty
-                          taxLot$price <- quote * (1 - spread - mkt.impact)
-                          taxLot$openDate <- Current.Date
+                          if(order$direction == DIRECTION.BUY) {
+                            price <- quote * (1 + spread + mkt.impact)
+                            print(paste("BUY",order$qty,order$assetID,price))
+                          } else {
+                            price <- quote * (1 - spread - mkt.impact)
+                            print(paste("SELL",order$qty,order$assetID,price))
+                          }
                           
-                          order$executedLots[[1]] <- taxLot
+                          trade$ex.price = price
                           
-                          order$commission <- private$transactionCostModel$getExchangeCommission(order)
-                          order$status <- ORDER.STATUS.EXECUTED
+                          # update settlement mode    
+                          trade$settlementMode <- Global.Dictionary.Adapter$getSettlementMode(order$assetID)
+                          
+                          # calculate commission
+                          trade$commission <- private$transactionCostModel$getExchangeCommission(order)
+                          
+                          trades[[k]] <- trade
+                          
+                          k = k + 1
                         }
                       }
                       
-                      return(orders)
+                      return(trades)
                     }
                   )
 )

@@ -6,15 +6,6 @@ source("exchange/Exchange.R")
 source("quantcore/QuantCore.R")
 source("adapters/AdapterInstance.R")
 
-DEFAULT.ACCOUNT.NAME = "TestAccount01"
-INITIAL.BUDGET.VALUE = 100000
-
-DIRECTION.BUY = 1
-DIRECTION.SELL = -1
-
-SLICE.T0 = 0
-SLICE.T1 = 1
-SLICE.T2 = 2
 
 Current.Date <- 0
 
@@ -50,12 +41,13 @@ BackTest <- R6Class("BackTest",
                         
                         dt <- as.Date(START.DATE, format = DATE.PATTERN)
                         
-                        Current.Date <<- dt
+                        
                         
                         while(dt <= as.Date(END.DATE, format = DATE.PATTERN) ) {
                           
                           dt <- private$exchange$getNextTradingDate(dt)
-                          print(dt)
+                          Current.Date <<- dt
+                          #print(dt)
                           
                           tradingOrders <- private$quantCore$getTradingOrders(date = dt, adapter = private$dataAdapter)
                           
@@ -66,6 +58,7 @@ BackTest <- R6Class("BackTest",
                           }
                           
                           print(private$broker$getAccountValue(DEFAULT.ACCOUNT.NAME, SLICE.T0))
+                          #print(private$broker$getAccountTaxLiability(DEFAULT.ACCOUNT.NAME))
                           
                           # rollover accoints Tn -> Tn+1
                           private$broker$rolloverAccounts()

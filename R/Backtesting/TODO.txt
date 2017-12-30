@@ -1,7 +1,15 @@
-12/27/2017
+
 
 Next steps:
-8. update account holdings with taxLots (using stack)
 9. implement T0,T1,T2 modes for accounts including account rollover
-10.calculate PnL of the strategy
-11.calculate tax implication of the account 
+10. calculate margin cost of short position
+11. create PerfomanceStatistics class to store statistics
+12. calculate PnL of the strategy
+13. Implement simple trading calculator: max position limitation
+14. Add second stock SBER
+15. Invest free cash into FXRB
+16. Add MICEX benchmark for comparison
+
+------------------
+
+* Enter real tariff and make it flexible

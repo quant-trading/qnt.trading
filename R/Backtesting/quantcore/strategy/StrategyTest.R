@@ -28,10 +28,10 @@ StrategyTest <- R6Class("StrategyTest",
                               
                               if(indicator < 30) {
                                 signal = DIRECTION.BUY
-                                print(paste("BUY", ticker))
+                                #print(paste("BUY", ticker))
                                 } else if(indicator > 70) {
                                   signal = DIRECTION.SELL
-                                  print(paste("SELL", ticker))
+                                  #print(paste("SELL", ticker))
                                 }
                               
                               #print(signal)

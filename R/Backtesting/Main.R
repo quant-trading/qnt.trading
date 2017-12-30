@@ -11,7 +11,7 @@ source("backtest/BackTest.R")
 BENCHMARK = "MICEXINDEXCF.ME" #"^GSPC"
 DATE.PATTERN = '%Y-%m-%d'
 START.DATE = '2013-03-15'
-END.DATE = '2013-04-17'
+END.DATE = '2014-11-01'
 
 backtest <- BackTest$new()
 
