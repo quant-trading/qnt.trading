@@ -9,12 +9,16 @@ TransactionCostModel <- R6Class("TransactionCostModel",
                                   },
                                   
                                   getMarketSpread = function(assetID, date = NULL) {
-                                    return(0.002)
+                                    return(DEFAULT.MARKET.SPREAD)
                                   },
                                   
                                   
                                   getExchangeCommission = function(order) {
-                                    return(2)
+                                    if(!EXCHANGE.COMMISSION) {
+                                      return(0)
+                                    } else {
+                                      return(2)
+                                    }
                                   },
                                   
                                   
