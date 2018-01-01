@@ -3,6 +3,7 @@
 
 
 source("holdings/Holding.R")
+source("results/AccountState.R")
 
 Account <- R6Class("Account",
                    
@@ -10,10 +11,17 @@ Account <- R6Class("Account",
                      accountID = NULL,
                      accountType = NULL,
                      holdings = list(),
-                     #T_n.holdings = list(),
+                     
+                     projection.T1 = list(),
+                     projection.T2 = list(),
+                     
+                     T1.k = 0,
+                     T2.k = 0,
+                     
                      currency = NULL,
                      free.cash = as.numeric(0),
-                     blocked.cash = as.numeric(0)
+                     blocked.cash = as.numeric(0),
+                     marginal.cash = as.numeric(0)
                    ),
                    public = list(
                      
@@ -24,6 +32,9 @@ Account <- R6Class("Account",
                        private$currency = DEFAULT.CURRENCY
                        private$accountType = DEFAULT.ACCOUNT.TYPE
                      },
+                     
+                     
+                     getID = function() { private$accountID},
                      
                      
                      processTrade = function( trade ) {
@@ -48,6 +59,140 @@ Account <- R6Class("Account",
                          
                        } else {
                          # deferred settlement
+                         
+                         # block initial margin
+                         self$blockMargin(trade$initial.margin)
+                         
+                         # add trade to the queue
+                         if(trade$settlementMode == SETTLEMENT.T2) {
+                           private$T2.k <- private$T2.k + 1
+                           private$projection.T2[[private$T2.k]] <- trade
+                         }
+                         
+                         if(trade$settlementMode == SETTLEMENT.T1) {
+                           private$T1.k <- private$T1.k + 1
+                           private$projection.T1[[private$T1.k]] <- trade
+                         }
+                         
+                       }
+                       
+                     },
+                     
+                     
+                     rollover = function() {
+                       
+                       # settle T1 -> To
+                       if(length(private$projection.T1) > 0) {
+                         for(k in seq(1,private$T1.k)) {
+                           
+                           if(indexExists(k, private$projection.T1) &&
+                              !is.null(private$projection.T1[[k]] )) {
+                             trade <- private$projection.T1[[k]]
+                             
+                             qty.before <- private$holdings[[trade$assetID]]$getNetQuantity()
+                             
+                             # release margin
+                             self$releaseMargin(abs(trade$getExecutedAmount()))
+                             
+                             # settle trade
+                             private$holdings[[trade$assetID]]$update(
+                               qty   = trade$getSignedQuantity(),
+                               price = trade$ex.price,
+                               date  = trade$date)
+                             
+                             qty.after <- qty.before + trade$getSignedQuantity()
+                             
+                             if(trade$direction == DIRECTION.BUY) {
+                               self$updateMarginalPosition_BUY(trade$getExecutedAmount(), qty.before, qty.after)
+                             }
+                             
+                             if(trade$direction == DIRECTION.SELL) {
+                               self$updateMarginalPosition_SELL(trade$getExecutedAmount(), qty.before, qty.after)
+                             }
+                             
+                             private$projection.T1[[k]] <- NULL
+                           }
+                         }
+                       }
+                       
+                       # rollover T2 -> T1
+                       if(length(private$projection.T2) > 0) {
+                         for(k in seq(1,private$T2.k)) {
+                           
+                           if(indexExists(k, private$projection.T2) &&
+                             !is.null(private$projection.T2[[k]])  ) {
+                             private$T1.k <- private$T1.k + 1
+                             # release initial margin
+                             self$releaseMargin(private$projection.T2[[k]]$initial.margin)
+                             
+                             # block full cost of trade
+                             self$blockMargin(abs(private$projection.T2[[k]]$getExecutedAmount()))
+                             
+                             private$projection.T1[[private$T1.k]] <- private$projection.T2[[k]]
+                             private$projection.T2[[k]] <- NULL
+                           }
+                         }
+                       }
+                     },
+                     
+                     
+                     updateMarginalPosition_BUY = function(amount, qty.before, qty.after) {
+                       
+                       qty.long = 0
+                       qty.close.short = 0
+                       qty.traded = qty.after - qty.before
+                       
+                       # Long Only
+                       if(qty.before >= 0) {
+                         self$updateCash( amount )
+                       }
+                       
+                       # Closing Short
+                       if(qty.before < 0) {
+                         
+                         # Standing Short
+                         if(qty.after <= 0) {
+                           qty.long = 0
+                           qty.close.short = qty.traded
+                         }
+                         
+                         # Reverse to Long
+                         if(qty.after > 0) {
+                           qty.long = qty.after
+                           qty.close.short = qty.before
+                         }
+                         
+                         self$updateCash( amount * qty.long /  qty.traded )
+                         self$updateMarginalCash( amount * qty.close.short /  qty.traded )
+                       }
+                     },
+                     
+                     updateMarginalPosition_SELL = function(amount, qty.before, qty.after) {
+                       
+                       qty.short = 0
+                       qty.close.long = 0
+                       qty.traded = qty.after - qty.before
+                       
+                       print(paste(amount, qty.traded, qty.before, qty.after))
+                       
+                       if(qty.before <= 0) {
+                         self$updateMarginalCash( amount )
+                       }
+                       
+                       if(qty.before > 0) {
+                         if(qty.after >= 0) {
+                           qty.short = 0
+                           qty.close.long = qty.traded
+                         }
+                         
+                         if(qty.after < 0) {
+                           qty.close.long = qty.before
+                           qty.short = qty.after
+                         }
+                         
+                         self$updateCash( amount * abs(qty.close.long / qty.traded) )
+                         self$updateMarginalCash( amount * abs( qty.short / qty.traded) )
+                         
                        }
                        
                      },
@@ -77,10 +222,24 @@ Account <- R6Class("Account",
                      }, 
                      
                      
+                     blockMargin = function(amount) {
+                       private$free.cash = private$free.cash - amount
+                       private$blocked.cash = private$blocked.cash + amount
+                     },
+                     
+                     
+                     releaseMargin = function(amount) {
+                       
+                       private$free.cash = private$free.cash + amount
+                       private$blocked.cash = private$blocked.cash - amount
+                       
+                     },
+                     
+                     
                      getTotalMarketValue = function(mode) {
                        cash = self$getCashAmount()
                        holdings.mv = self$getHoldingsMarketValue()
-                       return(cash + holdings.mv)
+                       return(cash + holdings.mv + private$marginal.cash)
                      },
                      
                      
@@ -104,8 +263,28 @@ Account <- R6Class("Account",
                      },
                      
                      
+                     updateMarginalCash = function(adj) {
+                       print(paste("Marginal Cash Update:", adj))
+                       private$marginal.cash = private$marginal.cash + as.numeric(adj)
+                     },
+                     
+                     
                      getUnrealizedPnL = function() {
                        
+                     },
+                     
+                     
+                     getState = function() {
+                       account.state <- AccountState$new(private$accountID, Current.Date)
+                       
+                       account.state$cash.blocked = private$blocked.cash
+                       account.state$cash.available = private$free.cash
+                       account.state$cash.marginal = private$marginal.cash
+                       account.state$cash.total = self$getCashAmount()
+                       account.state$total.mv.T0 = self$getTotalMarketValue( SETTLEMENT.T0  )
+                       account.state$cumulative.tax.liability = self$getTaxLiability()
+                       
+                       return(account.state)
                      }
                    )
 )

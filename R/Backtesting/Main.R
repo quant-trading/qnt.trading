@@ -5,13 +5,15 @@ library(quantmod)
 library(PerformanceAnalytics)
 
 source("config/StrategyConfig.R")
+source("utils/system/SystemUtils.R")
 source("backtest/BackTest.R")
 
+warning()
 
 BENCHMARK = "MICEXINDEXCF.ME" #"^GSPC"
 DATE.PATTERN = '%Y-%m-%d'
 START.DATE = '2013-03-15'
-END.DATE = '2014-11-01'
+END.DATE =   '2017-12-27'
 
 backtest <- BackTest$new()
 

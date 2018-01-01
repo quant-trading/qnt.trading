@@ -33,8 +33,8 @@ TaxLot <- R6Class("TaxLot",
                        self$qty = self$qty - offset.qty * sign(self$qty)
                        self$tax.liability = self$realized.pnl * DEFAULT.TAX.RATE
                        
-                       print(paste("Close lot", self$realized.pnl, price, self$price))
-                       print(self$qty)
+                       #print(paste("Close lot", self$realized.pnl, price, self$price))
+                       #print(self$qty)
                        # check if lot is closed
                        if(self$qty == 0) {
                          self$closeDate = Current.Date

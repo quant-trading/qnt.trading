@@ -32,7 +32,7 @@ Holding <- R6Class("Holding",
                        
                        # check if we need to create new lot
                        if(qty != 0) {
-                         print("Create New Lot")
+                         #print("Create New Lot")
                          lot = TaxLot$new(private$ID, qty, price, date)
                          private$taxLots[[length(private$taxLots) + 1]] = lot
                        }
@@ -42,10 +42,17 @@ Holding <- R6Class("Holding",
                    ),
                    
                    public = list (
+                     
                      initialize = function(ID) {
                        private$ID = ID
                        private$assetType = Global.Dictionary.Adapter$getAssetType(ID)
                      },
+                     
+                     
+                     getID = function() {
+                       private$ID
+                     }, 
+                     
                      
                      update = function(qty, price, date) {
                        

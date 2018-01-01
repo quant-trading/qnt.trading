@@ -1,15 +1,20 @@
 
 
 Next steps:
-9. implement T0,T1,T2 modes for accounts including account rollover
-10. calculate margin cost of short position
-11. create PerfomanceStatistics class to store statistics
-12. calculate PnL of the strategy
+-поправить расчет маржи:
+ -для коротких сделок всегда блокировать 30% до закрытия сделки, начислять проценты на маржу
+ -по длинным позициям T+2: 30%, T+1: 100%, T+0: 0%
+ -маржинальная длинная позиция определяется по отрицательному кэшу, на него начисляются проценты
+
+9*. Implement netting positions in T1, T2 modes
 13. Implement simple trading calculator: max position limitation
 14. Add second stock SBER
 15. Invest free cash into FXRB
 16. Add MICEX benchmark for comparison
+17. Add monthly broker fee
 
 ------------------
 
 * Enter real tariff and make it flexible
+
+https://www.zerich.com/internet-trading/helpfull-information/t-plus.html

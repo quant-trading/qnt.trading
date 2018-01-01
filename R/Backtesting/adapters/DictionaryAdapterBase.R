@@ -38,7 +38,7 @@ DictionaryAdapterBase <- R6Class("DictionaryAdapterBase",
                                
                                
                                getSettlementMode = function(assetID) {
-                                return(SETTLEMENT.T0)  
+                                return(SETTLEMENT.T2)  
                                },
                                
                                getAssetType = function(assetID) {

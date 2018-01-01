@@ -4,6 +4,7 @@
 
 source("broker/Account.R")
 
+
 Broker <- R6Class("Broker",
                    
                    private = list(
@@ -11,7 +12,19 @@ Broker <- R6Class("Broker",
                      
                      
                      calculateBrokerCommission = function(trade) {
-                       return(2)
+                       if(!BROKER.COMMISSION) {
+                         return(0) 
+                       } else { 
+                         return(2) 
+                         }
+                     },
+                     
+                     calculateCommissionForMarginalShortPosition = function(mv) {
+                       
+                       n = Current.Date - Previous.Date
+                       #print(paste("Days n", n))
+                       
+                       return(as.numeric(SHORT.MARGINAL.RATE / 365 * n * mv))
                      }
                    ),
                    public = list(
@@ -19,8 +32,9 @@ Broker <- R6Class("Broker",
                      initialize = function() {
                      },
                      
+                     
                      getInitialMargin = function(trade) {
-                       return(0.3)
+                       return(DEFAULT.INITIAL.MARGIN * abs(trade$getExecutedAmount()))
                      },
                      
                      
@@ -37,6 +51,7 @@ Broker <- R6Class("Broker",
                      getAccountTaxLiability = function(account_id) {
                        return( private$accounts[[account_id]]$getTaxLiability() )
                      },
+                     
                      
                      processTradingOrders = function(exchange, orders, account_id) {
                        
@@ -62,10 +77,45 @@ Broker <- R6Class("Broker",
                      
                      
                      rolloverAccounts = function() {
-                       
-                       # charge for margin
-                       
+                      
                        # rollover account
+                       for(account in private$accounts) {
+                         
+                         # charge for margin
+                         holdings <- account$getHoldings(SETTLEMENT.T0)
+                         
+                         for(h in holdings) {
+                           
+                           print(paste(h$getID(), h$getNetQuantity()))
+                           
+                           if(h$getNetQuantity() < 0) {
+                             
+                             marginal.trade.fee <- private$calculateCommissionForMarginalShortPosition(
+                               abs(h$getNetMarketValue())
+                             )
+                             print(paste("Fee", marginal.trade.fee))
+                             account$expenseCosts( marginal.trade.fee )
+                           }
+                           
+                         }
+                         
+                         # rollover
+                         account$rollover()
+                       }
+                     },
+                     
+                     
+                     getAccountStates = function() {
+                       
+                       states <- list()
+                       
+                       for(account in private$accounts) {
+                         state <- account$getState()
+                         state$saveToCsv()
+                         states[[account$getID()]] <- state
+                       }   
+                      
+                       return(states)
                      }
                      
                      

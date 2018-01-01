@@ -22,10 +22,10 @@ StrategyTest <- R6Class("StrategyTest",
                               
                               quotes <- na.omit(Cl(adapter$getTimeSeries(ticker, to = date)))
                               indicator <- RSI(quotes)[format(date, DATE.PATTERN)]
-                              #print(indicator)
                               
                               signal = 0
                               
+                              if(length(indicator) > 0) {
                               if(indicator < 30) {
                                 signal = DIRECTION.BUY
                                 #print(paste("BUY", ticker))
@@ -42,6 +42,7 @@ StrategyTest <- R6Class("StrategyTest",
                               }
                               
                               #print(Cl(adapter$getTimeSeries(ticker, to = date)))
+                              }
                             }
                             
                             return(tradingSignals)

@@ -29,7 +29,7 @@ Trade <- R6Class("Trade",
                    
                    
                    getExecutedAmount = function() {
-                     -self$getSignedQuantity() * Global.Dictionary.Adapter$getLotSize( self$assetID ) * self$ex.price
+                     as.numeric(-self$getSignedQuantity() * Global.Dictionary.Adapter$getLotSize( self$assetID ) * self$ex.price)
                    }
                  )                 
 )
