@@ -12,7 +12,7 @@ warning()
 
 BENCHMARK = "MICEXINDEXCF.ME" #"^GSPC"
 DATE.PATTERN = '%Y-%m-%d'
-START.DATE = '2013-03-15'
+START.DATE = '2017-01-03'
 END.DATE =   '2017-12-27'
 
 backtest <- BackTest$new()

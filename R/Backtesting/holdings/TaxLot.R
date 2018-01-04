@@ -41,6 +41,15 @@ TaxLot <- R6Class("TaxLot",
                          # TODO: fix for date
                        }
                        
+                     },
+                     
+                     
+                     get_unr_pnl = function() {
+                       if(self$qty == 0) {
+                         return(0)
+                       } else {
+                         return( sign(self$qty) * (Global.Quote.Adapter$getQuote(self$ID, Current.Date) - self$price) * self$qty * Global.Dictionary.Adapter$getLotSize(self$ID))
+                       }
                      }
                    )
 )

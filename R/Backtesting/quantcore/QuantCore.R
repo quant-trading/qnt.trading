@@ -10,7 +10,7 @@ QuantCore <- R6Class("QuantCore",
                     strategy = NULL,
                     
                     calculateTradingQuantity = function(assetID) {
-                      return(1)
+                      return(2)
                     },
                     
                     createTradingOrder = function(signal) {

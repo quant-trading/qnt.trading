@@ -78,6 +78,9 @@ BackTest <- R6Class("BackTest",
                         
                         # draw results
                         private$accountPerformance[[DEFAULT.ACCOUNT.NAME]]$plotDynamics()
+                        
+                        # dump csv
+                        private$accountPerformance[[DEFAULT.ACCOUNT.NAME]]$save()
                       }
                     )
 )

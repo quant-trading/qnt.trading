@@ -19,12 +19,15 @@ Broker <- R6Class("Broker",
                          }
                      },
                      
-                     calculateCommissionForMarginalShortPosition = function(mv) {
-                       
-                       n = Current.Date - Previous.Date
-                       #print(paste("Days n", n))
-                       
-                       return(as.numeric(SHORT.MARGINAL.RATE / 365 * n * mv))
+                     calculateCommissionForMarginalShortLoan = function(mv) {
+                       n = as.numeric(Current.Date - Previous.Date)
+                       return(round(as.numeric(SHORT.MARGINAL.RATE / 365 * n * mv), 2))
+                     },
+                     
+                     
+                     calculateCommissionForMarginalLongLoan = function(mv) {
+                       n = as.numeric(Current.Date - Previous.Date)
+                       return(round(as.numeric(LONG.MARGINAL.RATE / 365 * n * mv), 2))
                      }
                    ),
                    public = list(
@@ -66,7 +69,7 @@ Broker <- R6Class("Broker",
                            trade$initial.margin <- self$getInitialMargin(trade)
                            
                            # broker commission
-                           trade$commission = trade$commission + private$calculateBrokerCommission( trade )
+                           trade$commission <- trade$commission + private$calculateBrokerCommission( trade )
                            
                            # update account
                            private$accounts[[account_id]]$processTrade(trade)
@@ -80,27 +83,20 @@ Broker <- R6Class("Broker",
                       
                        # rollover account
                        for(account in private$accounts) {
-                         
-                         # charge for margin
-                         holdings <- account$getHoldings(SETTLEMENT.T0)
-                         
-                         for(h in holdings) {
-                           
-                           print(paste(h$getID(), h$getNetQuantity()))
-                           
-                           if(h$getNetQuantity() < 0) {
-                             
-                             marginal.trade.fee <- private$calculateCommissionForMarginalShortPosition(
-                               abs(h$getNetMarketValue())
-                             )
-                             print(paste("Fee", marginal.trade.fee))
-                             account$expenseCosts( marginal.trade.fee )
-                           }
-                           
-                         }
-                         
+
                          # rollover
                          account$rollover()
+                         
+                         # charge for margin
+                         marginal.trade.fee <- private$calculateCommissionForMarginalShortLoan(account$getShortMarketExposure())
+                         print(paste("Fee S", marginal.trade.fee))
+                         account$expenseCosts( marginal.trade.fee )
+                         
+                         if(account$get_available_cash() < 0) {
+                           marginal.trade.fee <- private$calculateCommissionForMarginalLongLoan(abs(account$get_available_cash()))
+                           print(paste("Fee L", marginal.trade.fee))
+                           account$expenseCosts( marginal.trade.fee )                           
+                         }
                        }
                      },
                      

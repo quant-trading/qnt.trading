@@ -11,7 +11,11 @@ AccountPerformance <- R6Class("AccountPerformance",
                                 
                                 performance = data.frame(dt = c(), gross.value = c(), net.value = c(),
                                                          gross.period.r = c(), net.period.r = c(),
-                                                         free.cash = c()),
+                                                         free.cash = c(),
+                                                         blocked.cash = c(),
+                                                         marginal.cash = c(),
+                                                         tmp = c()
+                                                         ),
                                 
                                 initialize = function(ID) {
                                   self$accountID = ID
@@ -25,7 +29,10 @@ AccountPerformance <- R6Class("AccountPerformance",
                                     net.value = as.numeric(state$total.mv.T0 - state$cumulative.tax.liability),
                                     gross.period.r = as.numeric(0), 
                                     net.period.r = as.numeric(0),
-                                    free.cash = state$cash.available
+                                    free.cash = state$cash.available,
+                                    blocked.cash = state$cash.blocked,
+                                    marginal.cash = state$cash.marginal,
+                                    tmp = state$tmp
                                   )
                                 
                                   self$performance <- rbind(self$performance, rec)
@@ -54,6 +61,11 @@ AccountPerformance <- R6Class("AccountPerformance",
                                   # add_TA(cumsum(b.ret), on = 1, col = "black")
                                   #free.cash <- xts(x = self$performance$free.cash, order.by = self$performance$dt)
                                   #plot(free.cash)
+                                },
+                                
+                                
+                                save = function() {
+                                  write.csv(x = self$performance, file = "logs/Results.csv")
                                 }
                                 
                               )

@@ -13,6 +13,7 @@ AccountState <- R6Class("Account State",
                           cash.total = 0,
                           total.mv.T0 = 0,
                           cumulative.tax.liability = 0,
+                          tmp = 0,
                           
                           initialize = function(id, dt) {
                             self$accountId = id
@@ -29,7 +30,8 @@ AccountState <- R6Class("Account State",
                               cash.available = self$cash.available,
                               cash.marginal = self$cash.marginal,
                               cash.total = self$cash.total,
-                              cum.tax.liabiity = self$cumulative.tax.liability
+                              cum.tax.liabiity = self$cumulative.tax.liability,
+                              tmp = self$tmp
 
                             )
 

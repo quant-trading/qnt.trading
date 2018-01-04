@@ -81,9 +81,17 @@ Holding <- R6Class("Holding",
                        return(q)
                      },
                      
-                     
                      getNetMarketValue = function() {
-                       return(self$getNetQuantity() * Global.Dictionary.Adapter$getLotSize(private$ID) * Global.Quote.Adapter$getQuote(private$ID, Current.Date))
+                       
+                       if(self$getNetQuantity() < 0) {
+                         return(self$get_unrealized_pnl())
+                       } else {
+                         return(self$getNetQuantity() * Global.Dictionary.Adapter$getLotSize(private$ID) * Global.Quote.Adapter$getQuote(private$ID, Current.Date))
+                       }
+                     },
+                     
+                     getMarketExposure = function() {
+                         return(self$getNetQuantity() * Global.Dictionary.Adapter$getLotSize(private$ID) * Global.Quote.Adapter$getQuote(private$ID, Current.Date))
                      },
                      
                      
@@ -96,6 +104,18 @@ Holding <- R6Class("Holding",
                          }
                        }
                        return(q)
+                     },
+                     
+                     
+                     get_unrealized_pnl = function() {
+                       q = as.numeric(0)
+                       
+                       if(length(private$taxLots) >= 1) {
+                         for(k in seq(1, length(private$taxLots))) {
+                           q = q + private$taxLots[[k]]$get_unr_pnl()
+                         }
+                       }
+                       q
                      }
                      
                    )

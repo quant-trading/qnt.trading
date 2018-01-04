@@ -33,9 +33,88 @@ Account <- R6Class("Account",
                        private$accountType = DEFAULT.ACCOUNT.TYPE
                      },
                      
-                     
+                     # Get Properties ----------------------------------------------------------------------
                      getID = function() { private$accountID},
                      
+                     getState = function() {
+                       account.state <- AccountState$new(private$accountID, Current.Date)
+                       
+                       account.state$cash.blocked = round(private$blocked.cash, 2)
+                       account.state$cash.available = round(private$free.cash, 2)
+                       account.state$cash.marginal = round(private$marginal.cash, 2)
+                       account.state$cash.total = self$getCashAmount()
+                       account.state$total.mv.T0 = self$getTotalMarketValue( SETTLEMENT.T0  )
+                       account.state$cumulative.tax.liability = self$getTaxLiability()
+                       if(length(private$holdings) > 0) {
+                         account.state$tmp = private$holdings[['GAZP.ME']]$getNetQuantity()
+                       } else {
+                         account.state$tmp = 0
+                       }
+                       
+                       return(account.state)
+                     },
+                     
+                     getHoldings = function(mode) {
+                       private$holdings
+                     },
+                     
+                     getCashAmount = function(mode) {
+                       return(as.numeric(private$free.cash + private$blocked.cash))
+                     },
+                     
+                     get_marginal_cash = function() {
+                       private$marginal.cash
+                     },
+                     
+                     get_available_cash = function() {
+                       private$free.cash
+                     },
+
+                     # Get Calculated Measures --------------------------------------------------------------------------
+                     getHoldingsMarketValue = function(mode) {
+                       mv = 0
+                       if(length(private$holdings) >= 1) {
+                         for(k in seq(1,length(private$holdings))) {
+                           mv = mv + private$holdings[[k]]$getNetMarketValue()
+                         }
+                       }
+                       return(as.numeric(mv))
+                     },
+                     
+                     getShortMarketExposure = function(mode) {
+                       mv = 0
+                       if(length(private$holdings) >= 1) {
+                         for(k in seq(1,length(private$holdings))) {
+                           expo <- private$holdings[[k]]$getMarketExposure()
+                           mv = mv + min(0, expo)
+                         }
+                       }
+                       return(as.numeric(mv))                       
+                     },
+                     
+                     getTaxLiability = function() {
+                       mv = 0
+                       if(private$accountType != ACCOUNT.TYPE.TAX.EXEMPT) {
+                         if(length(private$holdings) >= 1) {
+                           for(k in seq(1,length(private$holdings))) {
+                             mv = mv + private$holdings[[k]]$getTaxLiability()
+                           }
+                         }
+                       }
+                       return(as.numeric(mv))
+                     },
+                     
+                     getTotalMarketValue = function(mode) {
+                       cash = self$getCashAmount()
+                       holdings.mv = self$getHoldingsMarketValue()
+                       return(cash + holdings.mv + private$marginal.cash)
+                     },
+                     
+                     getUnrealizedPnL = function() {
+                       
+                     },
+                     
+                     # Update Account --------------------------------------------------------------------------
                      
                      processTrade = function( trade ) {
                        
@@ -61,7 +140,7 @@ Account <- R6Class("Account",
                          # deferred settlement
                          
                          # block initial margin
-                         self$blockMargin(trade$initial.margin)
+                         #self$blockMargin(trade$initial.margin)
                          
                          # add trade to the queue
                          if(trade$settlementMode == SETTLEMENT.T2) {
@@ -78,7 +157,6 @@ Account <- R6Class("Account",
                        
                      },
                      
-                     
                      rollover = function() {
                        
                        # settle T1 -> To
@@ -92,7 +170,7 @@ Account <- R6Class("Account",
                              qty.before <- private$holdings[[trade$assetID]]$getNetQuantity()
                              
                              # release margin
-                             self$releaseMargin(abs(trade$getExecutedAmount()))
+                             #self$releaseMargin(abs(trade$getExecutedAmount()))
                              
                              # settle trade
                              private$holdings[[trade$assetID]]$update(
@@ -123,18 +201,21 @@ Account <- R6Class("Account",
                              !is.null(private$projection.T2[[k]])  ) {
                              private$T1.k <- private$T1.k + 1
                              # release initial margin
-                             self$releaseMargin(private$projection.T2[[k]]$initial.margin)
+                             #self$releaseMargin(private$projection.T2[[k]]$initial.margin)
                              
                              # block full cost of trade
-                             self$blockMargin(abs(private$projection.T2[[k]]$getExecutedAmount()))
+                             #self$blockMargin(abs(private$projection.T2[[k]]$getExecutedAmount()))
                              
                              private$projection.T1[[private$T1.k]] <- private$projection.T2[[k]]
                              private$projection.T2[[k]] <- NULL
                            }
                          }
                        }
+                       
+                       for(h in private$holdings) {
+                         print(paste(h$getID(), h$getNetQuantity()))
+                       }
                      },
-                     
                      
                      updateMarginalPosition_BUY = function(amount, qty.before, qty.after) {
                        
@@ -196,95 +277,32 @@ Account <- R6Class("Account",
                        }
                        
                      },
-                     
-                     
-                     getHoldingsMarketValue = function(mode) {
-                       mv = 0
-                       if(length(private$holdings) >= 1) {
-                         for(k in seq(1,length(private$holdings))) {
-                           mv = mv + private$holdings[[k]]$getNetMarketValue()
-                         }
-                       }
-                       return(as.numeric(mv))
-                     },
-                     
-                     
-                     getTaxLiability = function() {
-                       mv = 0
-                       if(private$accountType != ACCOUNT.TYPE.TAX.EXEMPT) {
-                         if(length(private$holdings) >= 1) {
-                           for(k in seq(1,length(private$holdings))) {
-                             mv = mv + private$holdings[[k]]$getTaxLiability()
-                           }
-                         }
-                       }
-                       return(as.numeric(mv))
-                     }, 
-                     
-                     
+
                      blockMargin = function(amount) {
                        private$free.cash = private$free.cash - amount
                        private$blocked.cash = private$blocked.cash + amount
                      },
-                     
-                     
+
                      releaseMargin = function(amount) {
                        
                        private$free.cash = private$free.cash + amount
                        private$blocked.cash = private$blocked.cash - amount
                        
                      },
-                     
-                     
-                     getTotalMarketValue = function(mode) {
-                       cash = self$getCashAmount()
-                       holdings.mv = self$getHoldingsMarketValue()
-                       return(cash + holdings.mv + private$marginal.cash)
-                     },
-                     
-                     
-                     getCashAmount = function(mode) {
-                       return(as.numeric(private$free.cash + private$blocked.cash))
-                     },
-                     
-                     
-                     getHoldings = function(mode) {
-                       private$holdings
-                     },
-                     
-                     
+
                      expenseCosts = function(cost) {
                        private$free.cash = private$free.cash - as.numeric(cost)
                      },
-                     
-                     
+
                      updateCash = function(adj) {
                        private$free.cash = private$free.cash + as.numeric(adj)
                      },
                      
-                     
                      updateMarginalCash = function(adj) {
-                       print(paste("Marginal Cash Update:", adj))
-                       private$marginal.cash = private$marginal.cash + as.numeric(adj)
-                     },
-                     
-                     
-                     getUnrealizedPnL = function() {
-                       
-                     },
-                     
-                     
-                     getState = function() {
-                       account.state <- AccountState$new(private$accountID, Current.Date)
-                       
-                       account.state$cash.blocked = private$blocked.cash
-                       account.state$cash.available = private$free.cash
-                       account.state$cash.marginal = private$marginal.cash
-                       account.state$cash.total = self$getCashAmount()
-                       account.state$total.mv.T0 = self$getTotalMarketValue( SETTLEMENT.T0  )
-                       account.state$cumulative.tax.liability = self$getTaxLiability()
-                       
-                       return(account.state)
+                       #print(paste("Marginal Cash Update:", adj))
+                       #private$marginal.cash = private$marginal.cash + as.numeric(adj)
+                       #private$free.cash <- private$free.cash - as.numeric(adj) * DEFAULT.INITIAL.MARGIN
+                       #private$blocked.cash <- private$blocked.cash + as.numeric(adj) * DEFAULT.INITIAL.MARGIN
                      }
                    )
 )
