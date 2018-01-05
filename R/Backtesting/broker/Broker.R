@@ -47,7 +47,7 @@ Broker <- R6Class("Broker",
                      
                      
                      getAccountValue = function(account_id, mode) {
-                       return(private$accounts[[account_id]]$getTotalMarketValue(mode))
+                       return(private$accounts[[account_id]]$getNetMarketValue(mode))
                      },
                      
                      

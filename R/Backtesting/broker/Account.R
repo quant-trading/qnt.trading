@@ -43,7 +43,7 @@ Account <- R6Class("Account",
                        account.state$cash.available = round(private$free.cash, 2)
                        account.state$cash.marginal = round(private$marginal.cash, 2)
                        account.state$cash.total = self$getCashAmount()
-                       account.state$total.mv.T0 = self$getTotalMarketValue( SETTLEMENT.T0  )
+                       account.state$total.mv.T0 = self$getNetMarketValue( SETTLEMENT.T0  )
                        account.state$cumulative.tax.liability = self$getTaxLiability()
                        if(length(private$holdings) > 0) {
                          account.state$tmp = private$holdings[['GAZP.ME']]$getNetQuantity()
@@ -92,6 +92,18 @@ Account <- R6Class("Account",
                        return(as.numeric(mv))                       
                      },
                      
+                     getGrossMarketValue = function(mode) {
+                       
+                       mv = private$free.cash + private$blocked.cash
+                         
+                       if(length(private$holdings) >= 1) {
+                         for(k in seq(1,length(private$holdings))) {
+                           mv = mv + private$holdings[[k]]$getGrossMarketValue()
+                         }
+                       }
+                       return(as.numeric(mv))                       
+                     },
+                     
                      getTaxLiability = function() {
                        mv = 0
                        if(private$accountType != ACCOUNT.TYPE.TAX.EXEMPT) {
@@ -104,7 +116,7 @@ Account <- R6Class("Account",
                        return(as.numeric(mv))
                      },
                      
-                     getTotalMarketValue = function(mode) {
+                     getNetMarketValue = function(mode) {
                        cash = self$getCashAmount()
                        holdings.mv = self$getHoldingsMarketValue()
                        return(cash + holdings.mv + private$marginal.cash)
@@ -215,6 +227,17 @@ Account <- R6Class("Account",
                        for(h in private$holdings) {
                          print(paste(h$getID(), h$getNetQuantity()))
                        }
+                       
+                       # update marginal requirements
+                       # TODO: implement TRUE T+2 mode
+                       self$update_margin(SETTLEMENT.T2)
+                     },
+                     
+                     update_margin = function(mode) {
+                       marginal.assets = self$getGrossMarketValue(mode) - self$getNetMarketValue(mode)
+                       self$releaseMargin(private$blocked.cash)
+                       self$blockMargin(marginal.assets * DEFAULT.INITIAL.MARGIN)
+
                      },
                      
                      updateMarginalPosition_BUY = function(amount, qty.before, qty.after) {

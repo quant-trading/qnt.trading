@@ -94,6 +94,10 @@ Holding <- R6Class("Holding",
                          return(self$getNetQuantity() * Global.Dictionary.Adapter$getLotSize(private$ID) * Global.Quote.Adapter$getQuote(private$ID, Current.Date))
                      },
                      
+                     getGrossMarketValue = function() {
+                       return(abs(self$getMarketExposure()))
+                     },
+                     
                      
                      getTaxLiability = function() {
                        q = as.numeric(0)

@@ -2,11 +2,9 @@
 
 Next steps:
 -поправить расчет маржи:
- -блокировать маржу для коротких сделок и под поставку Т+2
+ -реализовать проекцию GrossValue счета на T+2 для расчета маржинального требования
  -рассчитывать ежедневные лимиты открытия коротких и длинных позиций (по Т+2)
  
-
-9*. Implement netting positions in T1, T2 modes
 13. Implement simple trading calculator: max position limitation
 14. Add second stock SBER
 15. Invest free cash into FXRB
