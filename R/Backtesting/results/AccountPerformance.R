@@ -9,13 +9,7 @@ AccountPerformance <- R6Class("AccountPerformance",
                                 
                                 accountID = NULL,
                                 
-                                performance = data.frame(dt = c(), gross.value = c(), net.value = c(),
-                                                         gross.period.r = c(), net.period.r = c(),
-                                                         free.cash = c(),
-                                                         blocked.cash = c(),
-                                                         marginal.cash = c(),
-                                                         tmp = c()
-                                                         ),
+                                performance = NULL,
                                 
                                 initialize = function(ID) {
                                   self$accountID = ID
@@ -25,17 +19,21 @@ AccountPerformance <- R6Class("AccountPerformance",
                                   
                                   rec <- data.frame(
                                     dt = state$date, 
-                                    gross.value = as.numeric(state$total.mv.T0), 
-                                    net.value = as.numeric(state$total.mv.T0 - state$cumulative.tax.liability),
+                                    gross.value = as.numeric(state$limits[[SLICE.T2]]$get_value()), 
+                                    net.value = as.numeric(state$limits[[SLICE.T2]]$get_value() - state$cumulative.tax.liability),
                                     gross.period.r = as.numeric(0), 
                                     net.period.r = as.numeric(0),
-                                    free.cash = state$cash.available,
-                                    blocked.cash = state$cash.blocked,
-                                    marginal.cash = state$cash.marginal,
-                                    tmp = state$tmp
+                                    cash = as.numeric(state$limits[[SLICE.T2]]$get_cash()),
+                                    longs = as.numeric(state$limits[[SLICE.T2]]$get_long_mv()),
+                                    shorts = as.numeric(state$limits[[SLICE.T2]]$get_short_mv())
                                   )
                                 
-                                  self$performance <- rbind(self$performance, rec)
+                                  if(is.null(self$performance)) {
+                                    self$performance <- rec
+                                  } else {
+                                    self$performance <- rbind(self$performance, rec)
+                                  }
+                                  
                                   
                                   # update returns
                                   N <- NROW(self$performance)
@@ -55,6 +53,8 @@ AccountPerformance <- R6Class("AccountPerformance",
                                   
                                   net.r <- xts(x = self$performance$net.period.r, order.by = self$performance$dt)
                                   charts.PerformanceSummary(net.r)
+                                  
+                                                                
                                   # chart.RelativePerformance(ret, b.ret)
                                   # 
                                   # chart_Series(cumsum(ret))
@@ -63,9 +63,15 @@ AccountPerformance <- R6Class("AccountPerformance",
                                   #plot(free.cash)
                                 },
                                 
-                                
                                 save = function() {
                                   write.csv(x = self$performance, file = "logs/Results.csv")
+                                },
+                                
+                                print_statistics = function() {
+                                  net.r <- xts(x = self$performance$net.period.r, order.by = self$performance$dt)
+                                  table.AnnualizedReturns(R = net.r,  Rf = RISK.FREE.RATE / 365)
+                                  #table.Drawdowns(R = net.r)
+                                  
                                 }
                                 
                               )

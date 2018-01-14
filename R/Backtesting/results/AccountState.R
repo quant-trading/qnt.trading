@@ -1,20 +1,19 @@
 # Mikhail Andreev (c) 2017
 # EOD Account State
 
+source("broker/Portfolio.R")
+
 AccountState <- R6Class("Account State",
                         
                         public = list(
                           accountId = "",
                           date = NULL,
                           
-                          cash.blocked = 0,
-                          cash.available = 0,
-                          cash.marginal = 0,
-                          cash.total = 0,
-                          total.mv.T0 = 0,
+                          limits = list(),
+                          portfolio = list(),
+
                           cumulative.tax.liability = 0,
-                          tmp = 0,
-                          
+
                           initialize = function(id, dt) {
                             self$accountId = id
                             self$date = dt
@@ -25,13 +24,9 @@ AccountState <- R6Class("Account State",
                             data <- data.frame(
                               ID = self$accountId,
                               dt = format(self$date, DATE.PATTERN),
-                              total.mv.T0 = self$total.mv.T0,
-                              cash.blocked = self$cash.blocked,
-                              cash.available = self$cash.available,
-                              cash.marginal = self$cash.marginal,
-                              cash.total = self$cash.total,
-                              cum.tax.liabiity = self$cumulative.tax.liability,
-                              tmp = self$tmp
+                              value = self$limits[[SLICE.T2]]$get_value(),
+                              cash = self$limits[[SLICE.T2]]$get_cash(),
+                              cum.tax.liabiity = self$cumulative.tax.liability
 
                             )
 

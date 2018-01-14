@@ -70,7 +70,7 @@ Holding <- R6Class("Holding",
                      },
                      
                      
-                     getNetQuantity = function() {
+                     get_quantity = function() {
                        q = as.numeric(0)
                        
                        if(length(private$taxLots) >= 1) {
@@ -81,22 +81,22 @@ Holding <- R6Class("Holding",
                        return(q)
                      },
                      
-                     getNetMarketValue = function() {
-                       
-                       if(self$getNetQuantity() < 0) {
-                         return(self$get_unrealized_pnl())
-                       } else {
-                         return(self$getNetQuantity() * Global.Dictionary.Adapter$getLotSize(private$ID) * Global.Quote.Adapter$getQuote(private$ID, Current.Date))
-                       }
-                     },
-                     
-                     getMarketExposure = function() {
-                         return(self$getNetQuantity() * Global.Dictionary.Adapter$getLotSize(private$ID) * Global.Quote.Adapter$getQuote(private$ID, Current.Date))
-                     },
-                     
-                     getGrossMarketValue = function() {
-                       return(abs(self$getMarketExposure()))
-                     },
+                     # getNetMarketValue = function() {
+                     #   
+                     #   if(self$get_quantity() < 0) {
+                     #     return(self$get_unrealized_pnl())
+                     #   } else {
+                     #     return(self$get_quantity() * Global.Dictionary.Adapter$getLotSize(private$ID) * Global.Quote.Adapter$getQuote(private$ID, Current.Date))
+                     #   }
+                     # },
+                     # 
+                     # getMarketExposure = function() {
+                     #     return(self$get_quantity() * Global.Dictionary.Adapter$getLotSize(private$ID) * Global.Quote.Adapter$getQuote(private$ID, Current.Date))
+                     # },
+                     # 
+                     # getGrossMarketValue = function() {
+                     #   return(abs(self$getMarketExposure()))
+                     # },
                      
                      
                      getTaxLiability = function() {

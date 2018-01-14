@@ -15,7 +15,7 @@ Broker <- R6Class("Broker",
                        if(!BROKER.COMMISSION) {
                          return(0) 
                        } else { 
-                         return(2) 
+                         return(trade$getExecutedAmount() * BROKER.COMMISSION.RATE ) 
                          }
                      },
                      
@@ -36,18 +36,13 @@ Broker <- R6Class("Broker",
                      },
                      
                      
-                     getInitialMargin = function(trade) {
-                       return(DEFAULT.INITIAL.MARGIN * abs(trade$getExecutedAmount()))
-                     },
-                     
-                     
                      createAccount = function(account_id, account_type, initial_cash = 0) {
                        private$accounts[[account_id]] <- Account$new(account_id, account_type, initial_cash)
                      },
                      
                      
                      getAccountValue = function(account_id, mode) {
-                       return(private$accounts[[account_id]]$getNetMarketValue(mode))
+                       return(private$accounts[[account_id]]$get_value())
                      },
                      
                      
@@ -64,18 +59,12 @@ Broker <- R6Class("Broker",
                        
                        # TODO: split execution results
                        for(trade in trades) {
-                         
-                           # set initial margin requirements
-                           trade$initial.margin <- self$getInitialMargin(trade)
-                           
                            # broker commission
                            trade$commission <- trade$commission + private$calculateBrokerCommission( trade )
                            
                            # update account
                            private$accounts[[account_id]]$processTrade(trade)
-
                        }
-                       
                      },
                      
                      
@@ -87,16 +76,16 @@ Broker <- R6Class("Broker",
                          # rollover
                          account$rollover()
                          
-                         # charge for margin
-                         marginal.trade.fee <- private$calculateCommissionForMarginalShortLoan(account$getShortMarketExposure())
-                         print(paste("Fee S", marginal.trade.fee))
-                         account$expenseCosts( marginal.trade.fee )
-                         
-                         if(account$get_available_cash() < 0) {
-                           marginal.trade.fee <- private$calculateCommissionForMarginalLongLoan(abs(account$get_available_cash()))
-                           print(paste("Fee L", marginal.trade.fee))
-                           account$expenseCosts( marginal.trade.fee )                           
-                         }
+                         # # charge for margin
+                         # marginal.trade.fee <- private$calculateCommissionForMarginalShortLoan(account$getShortMarketExposure())
+                         # print(paste("Fee S", marginal.trade.fee))
+                         # account$expenseCosts( marginal.trade.fee )
+                         # 
+                         # if(account$get_available_cash() < 0) {
+                         #   marginal.trade.fee <- private$calculateCommissionForMarginalLongLoan(abs(account$get_available_cash()))
+                         #   print(paste("Fee L", marginal.trade.fee))
+                         #   account$expenseCosts( marginal.trade.fee )                           
+                         # }
                        }
                      },
                      
@@ -106,7 +95,7 @@ Broker <- R6Class("Broker",
                        states <- list()
                        
                        for(account in private$accounts) {
-                         state <- account$getState()
+                         state <- account$get_state()
                          state$saveToCsv()
                          states[[account$getID()]] <- state
                        }   

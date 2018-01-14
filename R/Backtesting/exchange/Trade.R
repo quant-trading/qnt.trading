@@ -12,7 +12,6 @@ Trade <- R6Class("Trade",
 
                    commission = 0,
                    settlementMode = NULL,
-                   initial.margin = 0,
                    
                    initialize = function(asset_id, qty, direction) {
                      self$assetID = asset_id
@@ -24,12 +23,12 @@ Trade <- R6Class("Trade",
                    
                    getCommission = function() {self$commission},
                    
-                   
+                   # signed quantity
                    getSignedQuantity = function() {return(self$qty * self$direction)},
                    
-                   
+                   # absolute trading amount
                    getExecutedAmount = function() {
-                     as.numeric(-self$getSignedQuantity() * Global.Dictionary.Adapter$getLotSize( self$assetID ) * self$ex.price)
+                     abs(as.numeric(self$getSignedQuantity() * Global.Dictionary.Adapter$getLotSize( self$assetID ) * self$ex.price))
                    }
                  )                 
 )

@@ -17,7 +17,7 @@ TransactionCostModel <- R6Class("TransactionCostModel",
                                     if(!EXCHANGE.COMMISSION) {
                                       return(0)
                                     } else {
-                                      return(2)
+                                      return(EXCHANGE.COMMISSION.RATE * abs(order$qty) * Global.Dictionary.Adapter$getLotSize(order$assetID) * Global.Quote.Adapter$getQuote(order$assetID, Current.Date))
                                     }
                                   },
                                   
