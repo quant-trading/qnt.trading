@@ -79,6 +79,11 @@ BackTest <- R6Class("BackTest",
                             break()
                           }
                           
+                          if(states[[DEFAULT.ACCOUNT.NAME]]$limits[[SLICE.T2]]$get_UDS() < 0) {
+                            print("=== MARGIN CALL ===")
+                            break()
+                          }
+                          
                           private$accountPerformance[[DEFAULT.ACCOUNT.NAME]]$addState(states[[DEFAULT.ACCOUNT.NAME]])
                           
                         }

@@ -133,6 +133,14 @@ Account <- R6Class("Account",
                        private$cash
                      },
                      
+                     get_long_margin = function() {
+                       private$limit_T2$get_long_margin()
+                     },
+                     
+                     get_short_margin = function() {
+                       private$limit_T2$get_short_margin()
+                     },
+                     
                      
                      # Get Calculated Measures --------------------------------------------------------------------------
                      

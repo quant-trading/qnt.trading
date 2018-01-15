@@ -26,7 +26,8 @@ AccountState <- R6Class("Account State",
                               dt = format(self$date, DATE.PATTERN),
                               value = self$limits[[SLICE.T2]]$get_value(),
                               cash = self$limits[[SLICE.T2]]$get_cash(),
-                              cum.tax.liabiity = self$cumulative.tax.liability
+                              cum.tax.liabiity = self$cumulative.tax.liability,
+                              UDS = self$limits[[SLICE.T2]]$get_UDS()
 
                             )
 

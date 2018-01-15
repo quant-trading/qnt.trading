@@ -43,6 +43,26 @@ DictionaryAdapterBase <- R6Class("DictionaryAdapterBase",
                                
                                getAssetType = function(assetID) {
                                  return(private$instruments[[assetID]]$type)
+                               },
+                               
+                               get_d_init_margin_long = function(asset_id) {
+                                 return(0.14)
+                               },
+                               
+                               get_d_init_margin_short = function(asset_id) {
+                                 return(0.14)
+                               },
+                               
+                               get_d_min_margin_long = function(asset_id) {
+                                 return(0.072638)
+                               },
+                               
+                               get_d_min_margin_short = function(asset_id) {
+                                 return(0.067708)
+                               },
+                               
+                               is_marginal = function(asset_id) {
+                                 return(1)
                                }
                              )
 )
