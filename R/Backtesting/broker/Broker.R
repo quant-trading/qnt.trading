@@ -11,6 +11,7 @@ Broker <- R6Class("Broker",
                     accounts = list(),
                     
                     
+                    
                     calculateBrokerCommission = function(trade) {
                       if(!BROKER.COMMISSION) {
                         return(0) 
@@ -22,6 +23,20 @@ Broker <- R6Class("Broker",
                     calculateCommissionForMarginalShortLoan = function(mv) {
                       n = as.numeric(Current.Date - Previous.Date)
                       return(round(as.numeric(SHORT.MARGINAL.RATE / 365 * n * mv), 2))
+                    },
+                    
+                    get_monthly_commission = function(date) {
+                      if(is.null(date)) {
+                        return(BROKER.MONTHLY.FEE.AMOUNT)
+                      } else {
+                        m.last <- as.POSIXlt(date)$mo + 1
+                        m.curr <- as.POSIXlt(Current.Date)$mo + 1
+                        
+                        if(Current.Date > date && m.curr > m.last) {
+                          return(BROKER.MONTHLY.FEE.AMOUNT)
+                        }
+                      }
+                      return(0)
                     },
                     
                     
@@ -62,9 +77,20 @@ Broker <- R6Class("Broker",
                         # broker commission
                         trade$commission <- trade$commission + private$calculateBrokerCommission( trade )
                         
+                        # monthly fee
+                        if(BROKER.MONTHLY.FEE == T) {
+                          monthly.fee <- private$get_monthly_commission(private$accounts[[account_id]]$get_last_trading_date())
+                          if(monthly.fee > 0) {
+                            print(paste("Monthly Fee:", monthly.fee))
+                            private$accounts[[account_id]]$expense_costs( monthly.fee )
+                          }
+                        }
+                        
                         # update account
                         private$accounts[[account_id]]$processTrade(trade)
                       }
+                      
+                      
                     },
                     
                     
@@ -88,6 +114,7 @@ Broker <- R6Class("Broker",
                           print(paste("Fee L", marginal.trade.fee))
                           account$expense_costs( marginal.trade.fee )
                         }
+                        
                       }
                     },
                     

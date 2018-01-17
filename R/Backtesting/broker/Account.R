@@ -25,6 +25,8 @@ Account <- R6Class("Account",
                      currency = NULL,
                      cash = as.numeric(0),
                      
+                     last_trading_date = NULL,
+                     
                      # Internal Calculations --------------------------------------------------------------------------
                      get_portfolio = function(mode) {
                        
@@ -160,9 +162,15 @@ Account <- R6Class("Account",
                        
                      },
                      
+                     get_last_trading_date = function() {
+                       private$last_trading_date
+                     },
+                     
                      # Update Account --------------------------------------------------------------------------
                      
                      processTrade = function( trade ) {
+                       
+                       private$last_trading_date <- Current.Date
                        
                        # expense commission
                        self$expense_costs( trade$getCommission() )
