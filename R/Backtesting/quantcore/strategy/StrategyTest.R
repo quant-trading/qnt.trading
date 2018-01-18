@@ -12,7 +12,7 @@ StrategyTest <- R6Class("StrategyTest",
                             self$localUniverse <- LocalUniverse$new()
                           },
                           
-                          getTradingSignals = function(date, adapter) {
+                          getTradingSignals = function(date) {
                             
                             tickers <- self$localUniverse$getLocalUniverse(date)
                             
@@ -20,16 +20,25 @@ StrategyTest <- R6Class("StrategyTest",
                             
                             for(ticker in tickers) {
                               
-                              quotes <- na.omit(Cl(adapter$getTimeSeries(ticker, to = date)))
+                              # price indicator
+                              quotes <- na.omit(Cl(Global.Quote.Adapter$getTimeSeries(ticker, to = date)))
                               indicator <- RSI(quotes)[format(date, DATE.PATTERN)]
                               
+                              # volume indicator
+                              volumes <- na.omit(Vo(Global.Quote.Adapter$getTimeSeries(ticker, to = date)))
+                              avg.vol <- SMA(volumes, n = 3)[format(date, DATE.PATTERN)]
+                              vol <- volumes[format(date, DATE.PATTERN)]
+                              #print(paste(vol, avg.vol))
+                              vol.indicator <- ifelse(vol < avg.vol, 1, 0)
+                              
+                              # signal generation
                               signal = 0
                               
                               if(length(indicator) > 0) {
-                              if(indicator < 40) {
+                              if(indicator < 40 && vol.indicator) {
                                 signal = DIRECTION.BUY
                                 #print(paste("BUY", ticker))
-                                } else if(indicator > 60) {
+                                } else if(indicator > 60 && vol.indicator) {
                                   signal = DIRECTION.SELL
                                   #print(paste("SELL", ticker))
                                 }

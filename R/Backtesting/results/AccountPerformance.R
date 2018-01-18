@@ -27,7 +27,7 @@ AccountPerformance <- R6Class("AccountPerformance",
                                     longs = as.numeric(state$limits[[SLICE.T2]]$get_long_mv()),
                                     shorts = as.numeric(state$limits[[SLICE.T2]]$get_short_mv()),
                                     UDS = as.numeric(state$limits[[SLICE.T2]]$get_UDS()),
-                                    UDS = as.numeric(state$limits[[SLICE.T2]]$get_leverage())
+                                    leverage = as.numeric(state$limits[[SLICE.T2]]$get_leverage())
                                   )
                                 
                                   if(is.null(self$performance)) {

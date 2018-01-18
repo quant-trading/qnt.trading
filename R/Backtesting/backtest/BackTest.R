@@ -61,7 +61,10 @@ BackTest <- R6Class("BackTest",
                           # rollover accoints Tn -> Tn+1
                           private$broker$rolloverAccounts()
                           
-                          tradingOrders <- private$quantCore$getTradingOrders(date = dt, adapter = private$dataAdapter)
+                          # SOD states
+                          states <- private$broker$getAccountStates()
+                          
+                          tradingOrders <- private$quantCore$getTradingOrders(date = dt, states[[DEFAULT.ACCOUNT.NAME]]$limits[[SLICE.T2]])
                           
                           if(!is.null(tradingOrders)) {
                             private$broker$processTradingOrders(exchange = private$exchange, 

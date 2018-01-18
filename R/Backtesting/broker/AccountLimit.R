@@ -4,6 +4,7 @@
 AccountLimit <- R6Class("AccountLimit",
                         
                         private = list(
+                          portfolio_t2 = NULL,
                           m_portfolio = numeric(0),
                           m_cash = numeric(0),
                           m_UDS = numeric(0),
@@ -27,6 +28,8 @@ AccountLimit <- R6Class("AccountLimit",
                           
                           calculate = function(portfolio) {
                             
+                            private$portfolio_t2 <- portfolio
+                            
                             # cash
                             private$m_cash <- portfolio$get_cash()
                             
@@ -49,6 +52,8 @@ AccountLimit <- R6Class("AccountLimit",
                             private$m_requirement <- min(0, private$m_portfolio - private$m_min_margin)
                             
                             # UDS
+                            print(private$m_init_margin)
+                            print(private$m_min_margin)
                             if(abs(private$m_init_margin - private$m_min_margin) < 0.01) {
                                 private$m_UDS <- 100
                             } else {
@@ -136,6 +141,25 @@ AccountLimit <- R6Class("AccountLimit",
                           
                           get_short_margin = function() {
                             abs(private$m_short_margin)
+                          },
+                          
+                          get_long_position_limit = function(id) {
+                            floor(private$m_available / Global.Dictionary.Adapter$get_d_init_margin_long(id) / (Global.Dictionary.Adapter$getLotSize(id) * Global.Quote.Adapter$getQuote(id, Current.Date)))
+                          },
+                          
+                          get_short_position_limit = function(id) {
+                            
+                            if(Global.Dictionary.Adapter$is_shortable(id)) {
+                              l <- floor(private$m_available / Global.Dictionary.Adapter$get_d_init_margin_short(id) / (Global.Dictionary.Adapter$getLotSize(id) * Global.Quote.Adapter$getQuote(id, Current.Date)))
+                            } else {
+                              q <- private$portfolio_t2$positions[[id]]
+                              if(q > 0) {
+                                l <- abs(q)
+                              } else {
+                                l <- 0
+                              }
+                            }
+                            l
                           }
                         )
 )

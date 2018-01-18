@@ -18,3 +18,4 @@ END.DATE =   '2017-12-27'
 backtest <- BackTest$new()
 
 backtest$run()
+

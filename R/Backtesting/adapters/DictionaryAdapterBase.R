@@ -63,6 +63,10 @@ DictionaryAdapterBase <- R6Class("DictionaryAdapterBase",
                                
                                is_marginal = function(asset_id) {
                                  return(1)
+                               },
+                               
+                               is_shortable = function(asset_id) {
+                                 return(1)
                                }
                              )
 )

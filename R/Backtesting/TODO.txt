@@ -1,7 +1,6 @@
 
 
 Next steps:
--добавить расчет лимитов открытия позиций по каждому инструменту
 -добавить подгрузку дисконтов в словарь из файла
 -моделирование маржин-колл = принудительное частичное закрытие позиций
 
@@ -9,10 +8,7 @@ Next steps:
 14. Add second stock SBER
 15. Invest free cash into FXRB
 16. Add MICEX benchmark for comparison
-17. Add monthly broker fee
-
+-добавать стоп-лоссы и тэйк-профиты
 ------------------
-
-* Enter real tariff and make it flexible
 
 https://www.zerich.com/internet-trading/helpfull-information/t-plus.html

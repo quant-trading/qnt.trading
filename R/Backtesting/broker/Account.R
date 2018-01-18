@@ -143,6 +143,10 @@ Account <- R6Class("Account",
                        private$limit_T2$get_short_margin()
                      },
                      
+                     get_limit_T2 = function() {
+                       private$limit_T2
+                     },
+                     
                      
                      # Get Calculated Measures --------------------------------------------------------------------------
                      

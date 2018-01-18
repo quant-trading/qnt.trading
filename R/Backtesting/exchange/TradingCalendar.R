@@ -12,8 +12,8 @@ TradingCalendar <- R6Class("TradingCalendar",
                            
                            public = list(
                              initialize = function() {
-                               calendar <- read.csv(file = TRADING.CALENDAR.FILE, header = T, stringsAsFactors = F, sep = ',')
-                               private$tradingDates <- as.Date(calendar$Date, format = DATE.PATTERN)
+                               calendar <- read.csv(file = TRADING.CALENDAR.FILE, header = T, stringsAsFactors = F, sep = ';')
+                               private$tradingDates <- as.Date(as.character(calendar[,1]), format = "%Y%m%d")
                              },
                              
                              getNextTradingDate = function(dt) {
