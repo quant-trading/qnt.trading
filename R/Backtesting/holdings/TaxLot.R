@@ -30,9 +30,14 @@ TaxLot <- R6Class("TaxLot",
                      closeLot = function(offset.qty, price, date) {
                        
                        self$realized.pnl = self$realized.pnl + sign(self$qty) * (as.numeric(price) - self$price) * offset.qty * Global.Dictionary.Adapter$getLotSize(self$ID)
+                       
+                       pnl <- self$realized.pnl / abs(self$price * self$qty * Global.Dictionary.Adapter$getLotSize(self$ID))
+                       trade_analyzer$add_trade(pnl)
+                       
                        self$qty = self$qty - offset.qty * sign(self$qty)
                        self$tax.liability = self$realized.pnl * DEFAULT.TAX.RATE
                        
+
                        # check if lot is closed
                        if(self$qty == 0) {
                          self$closeDate = Current.Date

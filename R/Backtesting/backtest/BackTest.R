@@ -6,10 +6,12 @@ source("exchange/Exchange.R")
 source("quantcore/QuantCore.R")
 source("adapters/AdapterInstance.R")
 source("results/AccountPerformance.R")
-
+source("results/TradeAnalyzer.R")
 
 Current.Date <- 0
 Previous.Date <- 0
+
+trade_analyzer <- TradeAnalyzer$new()
 
 BackTest <- R6Class("BackTest",
                     
@@ -98,6 +100,8 @@ BackTest <- R6Class("BackTest",
                         private$accountPerformance[[DEFAULT.ACCOUNT.NAME]]$save()
                         
                         private$accountPerformance[[DEFAULT.ACCOUNT.NAME]]$print_statistics()
+                        
+                        trade_analyzer$plot_distribution()
                       }
                     )
 )
