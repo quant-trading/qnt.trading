@@ -1,5 +1,7 @@
 library(coinmarketcapr)
 
+plot_top_5_currencies(currency = "USD")
+
 global_cap <- get_global_marketcap(currency = "USD")
 coins_data <- get_marketcap_ticker_all(currency = "USD")
 
