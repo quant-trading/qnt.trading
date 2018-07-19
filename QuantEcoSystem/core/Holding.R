@@ -3,7 +3,7 @@ Holding <- R6Class("Holding",
                    public = list(
                      initialize = function(id, quantity, type) {
                        private$id <- id
-                       private$qty <- quantity
+                       private$qty <-as.numeric(quantity)
                        private$asset_type <- type
                        
                        private$adapter_ref <- switch (type,
@@ -21,13 +21,16 @@ Holding <- R6Class("Holding",
                      qty = 0,
                      lot_size = 1,
                      asset_type = NULL,
-                     current_price = 0,
+                     current_price = 1,
                      adapter_ref = NULL
                    ),
                    
                    active = list(
                      market_value = function() {
                        private$qty * private$current_price * private$lot_size
-                     }
+                     },
+                     
+                     a_id = function() private$id,
+                     q = function() private$qty
                    )
 )

@@ -8,25 +8,25 @@ Portfolio <- R6Class("Portfolio",
                        
                        
                        initialize = function(p_id = "Default Portfolio") {
-                         private$id <- p_id 
+                         private$p_id <- p_id 
                        },
                        
                        add_holding = function(holding) {
-                         n <- length(private$holdings)
-                         private$holdings[[n+1]] <- holding
+                         n <- length(private$p_holdings)
+                         private$p_holdings[[n+1]] <- holding
                        },
                        
                        remove_holding = function(holding) {
                          
                        },
                        
-                       update = function() {lapply(private$holdings, function(x) {x$update()})}
+                       update = function() {lapply(private$p_holdings, function(x) {x$update()})}
                      ),
                      
                      private = list(
-                       id = NULL,
+                       p_id = NULL,
                        
-                       holdings = list()
+                       p_holdings = list()
                      ),
                      
                      active = list(
@@ -34,7 +34,10 @@ Portfolio <- R6Class("Portfolio",
                          mv <- 0
                          for(h in private$holdings) mv <- mv + h$market_value
                          mv
-                       }
+                       },
+                       
+                       holdings = function() private$p_holdings,
+                       id = function() private$p_id
                      )
                      
 )

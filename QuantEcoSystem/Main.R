@@ -7,22 +7,29 @@ source("core/Portfolio.R")
 source("core/MongoDbConnector.R")
 
 print("Run Main")
-
+tryCatch({
 db_con <- MongoDbConnector$new()
 
 # initialize strategy class
-strategy <- Strategy$new(STRATEGY.ID)
-
+strategy_profile <- db_con$load_strategy_profile(STRATEGY.ID)
+strategy <- Strategy$new(strategy_profile)
 
 # load portfolio
-portfolio <- db_con$load_portfolio(strategy$id)
+portfolio <- db_con$load_portfolio(strategy$port_id)
 
 # generate trading signals
 
 # trade signals
 
 # save portfolio
-db_con$save_portfolio(strategy$id, portfolio)
+db_con$save_portfolio(portfolio)
+
+},
+finally = {
+  db_con$destroy()
+}
+)
+
 
 # send the report
 
