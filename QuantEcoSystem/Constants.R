@@ -1,0 +1,1 @@
+TYPE.CRYPTO = 1
