@@ -4,7 +4,7 @@ library(R6)
 
 source("Config.R")
 source("core/Portfolio.R")
-source("core/MongoDbConnector.R")
+source("connectivity/MongoDbConnector.R")
 
 print("Run Main")
 tryCatch({
@@ -30,6 +30,10 @@ finally = {
 }
 )
 
+portfolio$holdings[[1]]$q
+portfolio$id
+
+
 
 # send the report
 
@@ -46,6 +50,9 @@ finally = {
 # portfolio$update()
 # 
 # portfolio$market_value
+
+
+
 
 
 

@@ -16,9 +16,9 @@ MongoDbConnector <- R6Class("MongoDBConnector.R",
                                 # creates a connection to the postgres database
                                 # note that "con" will be used later in each connection to the database
                                 private$con <- dbConnect(private$drv, 
-                                                 dbname = "postgres",
-                                                 host = "localhost", port = 5432,
-                                                 user = "postgres", password = pw)
+                                                         dbname = "postgres",
+                                                         host = "localhost", port = 5432,
+                                                         user = "postgres", password = pw)
                                 rm(pw) # removes the password
                               },
                               
@@ -34,7 +34,7 @@ MongoDbConnector <- R6Class("MongoDBConnector.R",
                                 query <- paste0("select * from public.portfolio_holdings p where p.portfolio_id = '",pid,"' and p.date = 
                                   (select max(b.date) from public.portfolio_holdings b where b.portfolio_id = '",pid,"')")
                                 recs <- dbGetQuery(private$con, query)
-
+                                
                                 for(i in NROW(recs)) {
                                   hld <- Holding$new(recs[i,]$asset_id, recs[i,]$qty, TYPE.CRYPTO)
                                   portfolio$add_holding(hld)
@@ -45,16 +45,12 @@ MongoDbConnector <- R6Class("MongoDBConnector.R",
                               save_portfolio = function(portfolio) {
                                 
                                 ts <- Sys.time()
-  
-                                for(i in seq(1, NROW(portfolio$holdings))) {
-                                  
-                                  data = data.frame(portfolio_id = portfolio$id,
-                                                    date = ts,
-                                                    asset_id = portfolio$holdings[[i]]$a_id,
-                                                    qty = portfolio$holdings[[i]]$q)
-                                  
-                                  dbWriteTable(private$con, "portfolio_holdings", value = data, append = TRUE, row.names = FALSE)
-                                }
+                                
+                                # save holdings
+                                private$save_portfolio_holdings(portfolio, ts)
+                                
+                                # save dynamics
+                                private$save_portfolio_dynamics(portfolio, ts)
                               },
                               
                               destroy = function() {
@@ -66,6 +62,34 @@ MongoDbConnector <- R6Class("MongoDBConnector.R",
                             
                             private = list(
                               con = NULL,
-                              drv = NULL
+                              drv = NULL,
+                              
+                              save_portfolio_holdings = function(portolio, time) {
+                                #
+                                for(i in seq(1, NROW(portfolio$holdings))) {
+                                  
+                                  data <- data.frame(portfolio_id = portfolio$id,
+                                                    date = time,
+                                                    asset_id = portfolio$holdings[[i]]$a_id,
+                                                    qty = portfolio$holdings[[i]]$q)
+                                  
+                                  dbWriteTable(private$con, "portfolio_holdings", value = data, append = TRUE, row.names = FALSE)
+                                }
+                                
+                              },
+                              
+                              save_portfolio_dynamics = function(portfolio, time) {
+                                
+                                data <- data.frame(portfolio_id = portfolio$id,
+                                                   date = time,
+                                                   value_usd = portfolio$market_value,
+                                                   value_rub = portfolio$market_value / DATA.ADAPTER.YAHOO$get_current_price(USD.RUB),
+                                                   value_btc = portfolio$market_value / DATA.ADAPTER.YAHOO$get_current_price(USD.BTC)
+                                                   )
+                                
+                                
+                                
+                                dbWriteTable(private$con, "portfolio_dynamics", value = data, append = TRUE, row.names = FALSE)
+                              }
                             )
 )

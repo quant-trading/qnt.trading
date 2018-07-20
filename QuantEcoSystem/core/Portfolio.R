@@ -32,7 +32,7 @@ Portfolio <- R6Class("Portfolio",
                      active = list(
                        market_value = function() {
                          mv <- 0
-                         for(h in private$holdings) mv <- mv + h$market_value
+                         for(h in private$p_holdings) mv <- mv + h$market_value
                          mv
                        },
                        
