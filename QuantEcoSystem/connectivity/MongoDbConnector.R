@@ -53,6 +53,27 @@ MongoDbConnector <- R6Class("MongoDBConnector.R",
                                 private$save_portfolio_dynamics(portfolio, ts)
                               },
                               
+                              save_trading_signals = function(strategy_id, signals) {
+                                ts <- Sys.time()
+                                
+                                for(k in seq(1, length(signals))) { 
+                                 data <- data.frame(
+                                   upload_dt = ts,
+                                   strategy = strategy_id,
+                                   method = signals[[k]]$method,
+                                   ticker = signals[[k]]$asset,
+                                   trading_date = ts,
+                                   buy_sell = signals[[k]]$dir,
+                                   predicted_change = 0,
+                                   predicted_price = 0,
+                                   current_price = signals[[k]]$current_price,
+                                   horizon = signals[[k]]$horizon
+                                 )
+                                 
+                                 dbWriteTable(private$con, "trading_signals", value = data, append = TRUE, row.names = FALSE)
+                                }
+                              },
+                              
                               destroy = function() {
                                 # close the connection
                                 dbDisconnect(private$con)

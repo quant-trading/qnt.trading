@@ -1,11 +1,19 @@
 StrategyBase <- R6Class("StrategyBase",
                         
                         public = list(
+                          signal_generator = NULL,
+                          
                           initialize = function(id, type, last_dt, port_id) {
                             private$strategy_id <- id
                             private$strategy_type <- type
                             private$last_update <- last_dt
                             private$portfolio_id <- port_id
+
+                          },
+                          
+                          get_trading_signals = function() {
+                            print(self$signal_generator)
+                            self$signal_generator$generate_trading_signals()
                           }
                         ),
                         
@@ -14,6 +22,7 @@ StrategyBase <- R6Class("StrategyBase",
                           strategy_type = NULL,
                           last_update = NULL,
                           portfolio_id = NULL
+                          
                         ),
                         
                         active = list(

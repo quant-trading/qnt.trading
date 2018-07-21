@@ -1,4 +1,5 @@
 source("core/StrategyBase.R")
+source("crypto/CrytpoTest01.SignalsGenerator.R")
 
 Strategy <- R6Class("Strategy", 
                     
@@ -11,6 +12,9 @@ Strategy <- R6Class("Strategy",
                                          profile$last_update,
                                          profile$portfolio_id
                                          )
+                        
+                        self$signal_generator = CrytpoTest01.SignalsGenerator$new()
+                        
                       }
                     ),
                     

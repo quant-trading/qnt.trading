@@ -18,6 +18,8 @@ strategy <- Strategy$new(strategy_profile)
 portfolio <- db_con$load_portfolio(strategy$port_id)
 
 # generate trading signals
+signals <- strategy$get_trading_signals()
+#db_con$save_trading_signals(STRATEGY.ID, signals)
 
 # trade signals
 
