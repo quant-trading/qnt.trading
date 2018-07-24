@@ -53,6 +53,24 @@ MongoDbConnector <- R6Class("MongoDBConnector.R",
                                 private$save_portfolio_dynamics(portfolio, ts)
                               },
                               
+                              save_trading_orders = function(strategy_id, orders) {
+                                ts <- Sys.time()
+                                
+                                for(k in seq(1, length(orders))) { 
+                                  data <- data.frame(
+                                    strategy_id = strategy_id,
+                                    order_dt = ts,
+                                    ticker = orders[[k]]$asset_id,
+                                    order_type = orders[[k]]$type,
+                                    qty = orders[[k]]$q,
+                                    exchange = "DEMO",
+                                    currency = orders[[k]]$currency
+                                  )
+                                  
+                                  dbWriteTable(private$con, "trading_orders", value = data, append = TRUE, row.names = FALSE)
+                                }                  
+                              },
+                              
                               save_trading_signals = function(strategy_id, signals) {
                                 ts <- Sys.time()
                                 

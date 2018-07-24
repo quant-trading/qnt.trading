@@ -1,3 +1,5 @@
+source("core/TradingOrder.R")
+
 StrategyBase <- R6Class("StrategyBase",
                         
                         public = list(
@@ -12,8 +14,11 @@ StrategyBase <- R6Class("StrategyBase",
                           },
                           
                           get_trading_signals = function() {
-                            print(self$signal_generator)
                             self$signal_generator$generate_trading_signals()
+                          },
+                          
+                          get_trading_orders = function(portfolio, signals) {
+                            list()
                           }
                         ),
                         

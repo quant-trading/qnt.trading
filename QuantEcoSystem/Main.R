@@ -22,9 +22,17 @@ signals <- strategy$get_trading_signals()
 #db_con$save_trading_signals(STRATEGY.ID, signals)
 
 # trade signals
+# calculate trading orders
+orders <- strategy$get_trading_orders(portfolio, signals)
+#db_con$save_trading_orders(STRATEGY.ID, orders)
+
+# create exchange and trade orders
+# exchange <- ExchangeCryptoTest$new()
+# trades <- exchange$trade(orders)
+# portfolio <- portfolio$get_new_state(trades)
 
 # save portfolio
-db_con$save_portfolio(portfolio)
+#db_con$save_portfolio(portfolio)
 
 },
 finally = {

@@ -36,6 +36,10 @@ Portfolio <- R6Class("Portfolio",
                          mv
                        },
                        
+                       market_value_btc = function() {
+                         self$market_value / DATA.ADAPTER.YAHOO$get_current_price(USD.BTC)
+                       },
+                       
                        holdings = function() private$p_holdings,
                        id = function() private$p_id
                      )

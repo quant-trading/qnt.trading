@@ -22,13 +22,16 @@ Holding <- R6Class("Holding",
                      lot_size = 1,
                      asset_type = NULL,
                      current_price = 1,
-                     adapter_ref = NULL
+                     adapter_ref = NULL,
+                     sell_flag = NULL
                    ),
                    
                    active = list(
                      market_value = function() {
                        private$qty * private$current_price * private$lot_size
                      },
+                     
+                     mark_to_sell = function() private$sell_flag = 1,
                      
                      a_id = function() private$id,
                      q = function() private$qty
