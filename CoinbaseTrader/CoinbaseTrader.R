@@ -52,12 +52,19 @@ for(id in names(prices)) {
   xts.p <- price_to_xts(prices[[id]])
   
   # Donchian signal
-  donchian <- DonchianChannel(xts.p[,c("High","Low")], n=5)
+  donchian <- DonchianChannel(xts.p[,c("High","Low")], n=10)
   
   if(xts.p[NROW(xts.p)]$Close > donchian[NROW(donchian)]$high) {
     breakout <- 100*(xts.p[NROW(xts.p)]$Close/donchian[NROW(donchian)]$high - 1)
     print(paste("Broken Donchian Up:", id, "by", round(breakout,2),"%"))
   }
+  
+  # ADX
+  adx <- ADX(xts.p[,c("High","Low", "Close")])
+  
+  if(adx[NROW(adx)]$ADX > 25) 
+    print(paste("Trending", id, round(adx[NROW(adx)]$ADX)))
+  
   
   # Momentum
   roc <- momentum(xts.p, n = 1)
