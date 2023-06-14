@@ -67,7 +67,7 @@ for(asset in assets) {
 source("Stack.R")
 total.bal.usd <- 0
 
-debit <- c("Buy", "Receive", "Reward", "Rewards", "Card rebate reward", "Airdrop", "Converted to","Advanced trade trade", "Incoming")
+debit <- c("Disposed of crypto", "Buy", "Receive", "Reward", "Rewards", "Card rebate reward", "Airdrop", "Converted to","Advanced trade trade", "Incoming")
 credit <- c("Send", "Sell", "Spend", "Converted from")
 ignore <- c("Stake")
 
@@ -120,7 +120,7 @@ for(asset in assets) {
 
   
   tmp <- stacks[[asset]]$get_pnl_report(prices$price[prices$asset == asset])
-  if(!is.null(tmp) && tmp$mv > 2)
+  if(!is.null(tmp) && tmp$mv > 1)
     pnl.report <- rbind(pnl.report, cbind(asset, tmp))
     
   tmp <- stacks[[asset]]$get_wash_report()
