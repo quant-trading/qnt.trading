@@ -1,9 +1,11 @@
 # https://help.coinbase.com/en/prime/trading-and-funding/supported-cryptocurrencies-and-trading-pairs
 
 rm(list = ls())
-source("RetrieveQuotes.R")
-library(quantmod)
 
+library(quantmod)
+library(rgdax)
+
+source("RetrieveQuotes.R")
 
 pairs <- read.csv(file = "Coinbase Supported Assets - May 19, 2023.csv", header = T, stringsAsFactors = F)
 pairs <- subset(pairs, pairs$Exchange.Supported == "Yes" & pairs$Quote.Currency == "USD")
