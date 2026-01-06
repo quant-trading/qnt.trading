@@ -64,8 +64,8 @@ for(id in names(prices)) {
   # ADX
   adx <- ADX(xts.p[,c("High","Low", "Close")])
   
-  if(adx[NROW(adx)]$ADX > 25) 
-    print(paste("Trending", id, round(adx[NROW(adx)]$ADX)))
+  #if(adx[NROW(adx)]$ADX > 25) 
+  #  print(paste("Trending", id, round(adx[NROW(adx)]$ADX)))
   
   
   # Momentum

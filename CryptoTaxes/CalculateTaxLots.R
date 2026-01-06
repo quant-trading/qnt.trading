@@ -37,14 +37,18 @@ for(asset in assets) {
     newPair <- paste0("ETH-USD")
   } else {
     newPair <- paste0(asset,"-USD")
-    
   }
+  
   p <- NULL
   tryCatch({
-    p <- retreive_daily_data(newPair)
+    if(asset == "USDC"){ 
+      p <<- data.frame(asset = asset, unix = Sys.Date(), close = 1.)
+    } else {
+      p <- retreive_daily_data(newPair)
+    }
     p$unix <- as.Date(as.POSIXct(p$unix, origin="1970-01-01"))},
     error = function(e) { 
-      if(asset == "USDC") p <<- data.frame(asset = asset, unix = Sys.Date(), close = 1.)
+      
     }
   )
   if(NROW(p) > 0){
@@ -68,7 +72,7 @@ source("Stack.R")
 total.bal.usd <- 0
 
 debit <- c("Disposed of crypto", "Buy", "Receive", "Reward", "Rewards", "Card rebate reward", "Airdrop", "Converted to","Advanced trade trade", "Incoming")
-credit <- c("Send", "Sell", "Spend", "Converted from")
+credit <- c("Send", "Sell", "Spend", "Converted from", "Outgoing")
 ignore <- c("Stake")
 
 stacks <- list()
