@@ -1,0 +1,2 @@
+Entry 1: Data analysis is fun.
+Entry 2: Python makes it easier.
